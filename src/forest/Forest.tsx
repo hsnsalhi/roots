@@ -20,6 +20,7 @@ export default function Forest({ bis, letter, onSelect }: Props) {
   const layout = useMemo(() => layoutForest(bis), [bis]);
   const [hover, setHover] = useState<TreeNode | null>(null);
   const [size, setSize] = useState({ w: 1, h: 1 });
+  const [hint, setHint] = useState(true);
 
   const { t, flyTo, fitRect, zoomBy, wasDrag, set } = usePanZoom(stageRef, {
     minScale: 0.08,
@@ -140,6 +141,12 @@ export default function Forest({ bis, letter, onSelect }: Props) {
         <span className="chip">
           <b>{arNum(bis.length)}</b> شجرة · <b>{arNum(bis.reduce((s, b) => s + b.roots.length, 0))}</b> جذرًا
         </span>
+        {hint && t.k < LABEL_MIN_ZOOM && (
+          <span className="chip hint">
+            اختر حرفًا أو كبّر بالعجلة، ثم انقر على شجرة
+            <button aria-label="إخفاء التلميح" onClick={() => setHint(false)}>×</button>
+          </span>
+        )}
       </div>
       <Minimap layout={layout} t={t} size={size} onJump={(wx, wy) => set({ k: t.k, x: size.w / 2 - wx * t.k, y: size.h / 2 - wy * t.k })} />
     </>

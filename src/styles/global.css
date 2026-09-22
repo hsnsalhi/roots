@@ -377,3 +377,6 @@ kbd { font-family: inherit; background: var(--bg-2); border: 1px solid var(--lin
   .search input { font-size: 15px; padding: 7px 34px 7px 10px; }
   .iconbtn { width: 34px; height: 34px; }
 }
+
+.chip.hint { color: var(--ink); background: var(--mark); border-color: transparent; }
+.chip.hint button { margin-inline-start: 4px; font-size: 16px; line-height: 1; color: var(--ink-2); }
