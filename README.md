@@ -24,8 +24,9 @@
 
 ## ماذا في الغابة؟
 
-- **الغابة**: ٤٨٦ شجرة (بالقاعدة الافتراضية) موزّعة على بساتين بحسب الحرف الأول. حجم الشجرة بعدد مواضع أفعالها في القرآن،
-  وثمارها الذهبية بعدد أفعالها، والشجيرات الصغيرة جذورٌ لم يرد منها فعل. تحريك بالسحب، تكبير بالعجلة أو بإصبعين، شريط حروف، خريطة مصغّرة، وبحث عن جذر أو فعل أو كلمة.
+- **الغابة**: مشهد ثلاثي الأبعاد (WebGL) فيه ٤٨٦ شجرة (بالقاعدة الافتراضية) موزّعة على بساتين بحسب الحرف الأول، على أرض متموّجة
+  بعشبها وظلالها وسمائها ونهارها وليلها. ارتفاع الشجرة بعدد مواضع أفعالها في القرآن، وفوقها لوحة بحرفي جذرها، والشجيرات الصغيرة جذورٌ لم يرد منها فعل.
+  دوران بالسحب، اقتراب بالعجلة أو بإصبعين، شريط حروف، لافتات خشبية للبساتين، خريطة مصغّرة، وبحث عن جذر أو فعل أو كلمة.
 - **الشجرة**: كلّ غصن جذر ثلاثي وكلّ فرع فعل. النقر على الغصن يعرض أصل الجذر عند ابن فارس ومادّته عند الراغب ومشتقّاته الاسمية؛
   والنقر على الفعل يعرض وزنه وصيغه الواردة (الزمن، الإسناد، البناء للمعلوم/المجهول) وآياته كلّها مع تظليل الكلمة.
 - **الأرقام**: ١٦٥١ جذرًا (منها ٩٤١ ورد منه فعل)، ١٤٧٤ فعلًا في ١٩٣٥٣ موضعًا، ٣١٦٣ مشتقًّا اسميًا، ٦٢٣٦ آية.
@@ -48,7 +49,7 @@
 
 # Forêt des racines (français)
 
-Application web (React + Vite, statique) qui représente les **racines bilitères des verbes du Coran** sous forme de forêt :
+Application web (React + Vite + three.js, statique) qui représente les **racines bilitères des verbes du Coran** sous forme de forêt 3D :
 chaque arbre est une racine bilitère, ses branches sont les racines trilitères qui partagent ces deux lettres, et les rameaux
 sont les verbes attestés dans le Coran, avec toutes leurs occurrences et le sens de la racine dans deux dictionnaires classiques
 (Ibn Fāris, *Maqāyīs al-lugha* ; al-Rāghib al-Iṣfahānī, *al-Mufradāt*).
@@ -90,8 +91,8 @@ Couverture : 1 538 entrées d'Ibn Fāris et 1 523 entrées d'al-Rāghib pour 1 6
 ## Structure
 
 ```
-index.html, src/            application (React 19, TypeScript, Vite 8, SVG maison, aucune dépendance graphique lourde)
-src/forest/                 vue « forêt » : disposition en bosquets par lettre, arbres procéduraux, pan/zoom, minicarte
+index.html, src/            application (React 19, TypeScript, Vite 8, three.js pour la forêt, SVG pour l'arbre)
+src/forest3d/               vue « forêt » 3D : terrain, arbres procéduraux texturés, ombres, ciel/brume, herbe, caméra orbitale, minicarte
 src/tree/                   vue « arbre » : disposition en éventail, panneau (dictionnaires, formes, versets)
 scripts/build_data.py       pipeline de données ;  scripts/dicts.py : analyseurs des dictionnaires
 public/data/                données générées (≈ 10 Mo, chargées à la demande)

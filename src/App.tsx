@@ -5,7 +5,7 @@ import { SettingsProvider, useSettings } from './settings';
 import { useRoute, navigate, hrefTree } from './router';
 import type { IndexFile } from './types';
 import Header from './components/Header';
-import Forest from './forest/Forest';
+import Forest3D from './forest3d/Forest3D';
 import TreeView from './tree/TreeView';
 import About from './components/About';
 
@@ -57,7 +57,7 @@ function Shell() {
         </div>
       );
     } else content = <TreeView key={bi.id} bi={bi} index={index} route={route} />;
-  } else content = <Forest bis={bis} index={index} letter={route.letter} onSelect={(b) => navigate(hrefTree(b.id))} />;
+  } else content = <Forest3D bis={bis} letter={route.letter} onSelect={(b) => navigate(hrefTree(b.id))} />;
 
   return (
     <div className="app">
