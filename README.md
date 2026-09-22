@@ -57,7 +57,7 @@ sont les verbes attestés dans le Coran, avec toutes leurs occurrences et le sen
 
 ## Déploiement (GitHub Pages)
 
-Le workflow `.github/workflows/deploy.yml` construit le site à chaque push sur la branche par défaut et publie le dossier
+Le workflow `.github/workflows/deploy.yml` construit le site à chaque push sur la branche `main` et publie le dossier
 `dist/` dans la branche `gh-pages`. GitHub Pages sert cette branche à l'adresse `https://<utilisateur>.github.io/<dépôt>/`.
 
 Si le site n'apparaît pas après le premier déploiement, activez Pages une seule fois à la main :
