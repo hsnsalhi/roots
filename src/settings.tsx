@@ -5,9 +5,10 @@ export interface Settings {
   rule: BiRule;
   theme: 'auto' | 'light' | 'dark';
   showEmpty: boolean;   // include roots that have no verb in the Quran
+  showLexicon: boolean; // draw the verbs of the lexica that are absent from the Quran on the tree
 }
 
-const DEFAULTS: Settings = { rule: 'first-two', theme: 'auto', showEmpty: true };
+const DEFAULTS: Settings = { rule: 'first-two', theme: 'auto', showEmpty: true, showLexicon: true };
 const KEY = 'roots-forest-settings';
 
 function read(): Settings {

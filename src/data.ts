@@ -4,6 +4,7 @@ const BASE = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/data`;
 
 const rootCache = new Map<string, Promise<RootFile>>();
 const suraCache = new Map<number, Promise<SuraFile>>();
+const lisanCache = new Map<string, Promise<string | null>>();
 let indexPromise: Promise<IndexFile> | null = null;
 
 async function getJSON<T>(url: string): Promise<T> {
@@ -31,6 +32,16 @@ export function loadSura(n: number): Promise<SuraFile> {
   if (!p) {
     p = getJSON<SuraFile>(`${BASE}/quran/${n}.json`);
     suraCache.set(n, p);
+  }
+  return p;
+}
+
+/** The Lisan al-Arab entry of a root (large: loaded only on request). */
+export function loadLisan(id: string): Promise<string | null> {
+  let p = lisanCache.get(id);
+  if (!p) {
+    p = getJSON<{ text: string }>(`${BASE}/lisan/${id}.json`).then((d) => d.text ?? null);
+    lisanCache.set(id, p);
   }
   return p;
 }

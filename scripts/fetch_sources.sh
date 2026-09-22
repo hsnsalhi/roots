@@ -28,4 +28,30 @@ curl -fsSL -o mufradat_shamela.txt \
   "$OI/0525AH/master/data/0502RaghibIsbahani/0502RaghibIsbahani.Mufradat/0502RaghibIsbahani.Mufradat.Shamela0023636-ara1"
 curl -fsSL -o mufradat_jk.txt \
   "$OI/0525AH/master/data/0502RaghibIsbahani/0502RaghibIsbahani.Mufradat/0502RaghibIsbahani.Mufradat.JK001150-ara1"
+
+
+# 5. Arramooz Alwaseet (Taha Zerrouki, GPL): Arabic verbs with their roots, via the arramooz-pysqlite wheel on PyPI
+tmp=$(mktemp -d)
+pip download arramooz-pysqlite==0.4.2 --no-deps -d "$tmp" >/dev/null
+unzip -o -q "$tmp"/arramooz_pysqlite-*.whl 'arramooz/data/arabicdictionary.sqlite' -d "$tmp"
+cp "$tmp/arramooz/data/arabicdictionary.sqlite" arramooz.sqlite
+rm -rf "$tmp"
+
+# 6. English Wiktionary, Arabic verbs (CC BY-SA 4.0), through the kaikki.org / Wiktextract dump,
+#    reduced to the fields the pipeline needs (the raw file is ~290 MB and is not kept)
+wikt=$(mktemp)
+curl -fsSL -o "$wikt" \
+  "https://kaikki.org/dictionary/Arabic/pos-verb/kaikki.org-dictionary-Arabic-by-pos-verb.jsonl"
+python3 ../extract_wiktionary.py "$wikt" wiktionary_verbs.jsonl
+rm -f "$wikt"
+
+# 7. Three classical dictionaries (public-domain texts, Shamela digitisations, OpenITI corpus):
+#    Ibn Manzur (d. 711 AH), Lisan al-Arab; al-Firuzabadi (d. 817 AH), al-Qamus al-Muhit;
+#    al-Jawhari (d. 393 AH), al-Sihah
+curl -fsSL -o lisan.txt \
+  "$OI/0725AH/master/data/0711IbnManzurIfriqi/0711IbnManzurIfriqi.LisanCarab/0711IbnManzurIfriqi.LisanCarab.Shamela0001687-ara1.mARkdown"
+curl -fsSL -o qamus.txt \
+  "$OI/0825AH/master/data/0817MajdDinFiruzabadi/0817MajdDinFiruzabadi.QamusMuhit/0817MajdDinFiruzabadi.QamusMuhit.Shamela0007283-ara1"
+curl -fsSL -o sihah.txt \
+  "$OI/0400AH/master/data/0393IbnHammadJawhari/0393IbnHammadJawhari.SihahTajLugha/0393IbnHammadJawhari.SihahTajLugha.Shamela0023235-ara1"
 echo "done"

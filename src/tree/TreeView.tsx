@@ -1,8 +1,9 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { loadRoot } from '../data';
 import { usePanZoom } from '../hooks/usePanZoom';
-import { arNum, dashed, seeded } from '../roots';
+import { arNum, dashed, plural, seeded } from '../roots';
 import { hrefTree, navigate, type Route } from '../router';
+import { useSettings } from '../settings';
 import type { BiRoot, IndexFile, RootFile } from '../types';
 import { layoutTree, type RootNode, type VerbNode } from './layout';
 import Panel from './Panel';
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export default function TreeView({ bi, index, route }: Props) {
+  const { settings } = useSettings();
   const [files, setFiles] = useState<RootFile[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,7 +30,7 @@ export default function TreeView({ bi, index, route }: Props) {
   }, [bi]);
 
   const idxMap = useMemo(() => new Map(bi.roots.map((r) => [r.r, r])), [bi]);
-  const layout = useMemo(() => (files ? layoutTree(files, idxMap) : null), [files, idxMap]);
+  const layout = useMemo(() => (files ? layoutTree(files, idxMap, settings.showLexicon) : null), [files, idxMap, settings.showLexicon]);
   const fileMap = useMemo(() => new Map((files ?? []).map((f) => [f.r, f])), [files]);
 
   const selectRoot = (r?: string) => navigate(hrefTree(bi.id, r));
@@ -67,7 +69,7 @@ function TreeStage({ bi, layout, route, onRoot, onVerb }: { bi: BiRoot; layout: 
     const vp = { width: stageRef.current.clientWidth, height: stageRef.current.clientHeight };
     if (route.verb && route.root) {
       const rn = layout.roots.find((r) => r.root.r === route.root);
-      const vn = rn?.verbs.find((v) => v.verb.lem === route.verb);
+      const vn = rn?.verbs.find((v) => v.lem === route.verb);
       if (rn && vn) {
         const k = Math.min(2.2, Math.max(t.k, 1));
         flyTo({ k, x: vp.width / 2 - ((rn.x + vn.x) / 2) * k, y: vp.height / 2 - ((rn.y + vn.y) / 2) * k }, 600);
@@ -157,7 +159,13 @@ function TreeStage({ bi, layout, route, onRoot, onVerb }: { bi: BiRoot; layout: 
       <div className="hud bottom-start">
         <span className="chip">
           <b>{arNum(bi.roots.length)}</b> جذور · <b>{arNum(bi.verbLemmas)}</b> فعل · <b>{arNum(bi.verbTokens)}</b> موضع
+          {layout.extras > 0 && <> · <b>{arNum(layout.extras)}</b> فعل من المعاجم</>}
         </span>
+        {layout.extras > 0 && (
+          <span className="chip legend" title="الفروع الخضراء أفعال وردت في القرآن؛ الفروع الرمادية أفعال من المعاجم لم ترد فيه">
+            <i className="dot q" aria-hidden="true" /> في القرآن <i className="dot x" aria-hidden="true" /> {plural(layout.extras, 'فعل', 'فعلان', 'أفعال', 'فعلًا')} في المعاجم فقط
+          </span>
+        )}
       </div>
     </>
   );
@@ -200,9 +208,13 @@ const Branch = memo(function Branch({ rn, T, R1, maxTokens, maxVerb, dim, select
   return (
     <g opacity={dim ? 0.45 : 1} style={{ transition: 'opacity .3s' }}>
       <path d={d} stroke={selected ? 'var(--gold)' : 'var(--bark)'} strokeWidth={w} fill="none" strokeLinecap="round" />
-      {rn.verbs.map((vn, i) => (
-        <VerbTwig key={vn.key} vn={vn} from={rn} maxVerb={maxVerb} selected={selVerb === vn.verb.lem} muted={!!selVerb && selVerb !== vn.verb.lem} flip={i % 2 === 0} onClick={() => onVerb(vn.verb.lem)} />
-      ))}
+      {rn.verbs.map((vn, i) =>
+        vn.extra ? (
+          <LexTwig key={vn.key} vn={vn} from={rn} selected={selVerb === vn.lem} muted={!!selVerb && selVerb !== vn.lem} flip={i % 2 === 0} onClick={() => onVerb(vn.lem)} />
+        ) : (
+          <VerbTwig key={vn.key} vn={vn} from={rn} maxVerb={maxVerb} selected={selVerb === vn.lem} muted={!!selVerb && selVerb !== vn.lem} flip={i % 2 === 0} onClick={() => onVerb(vn.lem)} />
+        ),
+      )}
       {rn.verbs.length === 0 && (
         <g>
           {[0, 1, 2, 3].map((i) => (
@@ -229,19 +241,40 @@ const VerbTwig = memo(function VerbTwig({ vn, from, maxVerb, selected, muted, fl
   const px = (-dy / len) * len * 0.14 * (flip ? 1 : -1);
   const py = (dx / len) * len * 0.14 * (flip ? 1 : -1);
   const d = `M ${from.x} ${from.y} Q ${mx + px} ${my + py} ${vn.x} ${vn.y}`;
-  const w = 1.6 + 4 * Math.sqrt(vn.verb.count / maxVerb);
-  const leafR = 5 + 6 * Math.sqrt(vn.verb.count / maxVerb);
+  const w = 1.6 + 4 * Math.sqrt(vn.count / maxVerb);
+  const leafR = 5 + 6 * Math.sqrt(vn.count / maxVerb);
   const rand = seeded(vn.key);
   return (
-    <g opacity={muted ? 0.5 : 1} style={{ cursor: 'pointer', transition: 'opacity .3s' }} onClick={onClick} role="button" aria-label={`الفعل ${vn.verb.lem}`}>
+    <g opacity={muted ? 0.5 : 1} style={{ cursor: 'pointer', transition: 'opacity .3s' }} onClick={onClick} role="button" aria-label={`الفعل ${vn.lem}`}>
       <path d={d} stroke={selected ? 'var(--gold)' : 'var(--bark-2)'} strokeWidth={w} fill="none" strokeLinecap="round" />
       <circle cx={vn.x + (rand() - 0.5) * 8} cy={vn.y - 3} r={leafR} fill={selected ? 'var(--gold-2)' : 'var(--green-2)'} />
       <circle cx={vn.x + (rand() - 0.5) * 12} cy={vn.y - 8} r={leafR * 0.75} fill={selected ? 'var(--gold)' : 'var(--green-3)'} />
       <text x={vn.lx} y={vn.ly + 6} textAnchor="middle" fontFamily="var(--font-title)" fontSize="18" fontWeight={selected ? 700 : 400} fill={selected ? 'var(--gold)' : 'var(--ink)'}>
-        {vn.verb.lem}
+        {vn.lem}
       </text>
       <text x={vn.lx} y={vn.ly + 22} textAnchor="middle" fontFamily="var(--font-body)" fontSize="11" fill="var(--ink-3)">
-        {arNum(vn.verb.count)}
+        {arNum(vn.count)}
+      </text>
+    </g>
+  );
+});
+
+/** A verb of the lexica that does not occur in the Quran: a thin bare twig with a bud, no leaves. */
+const LexTwig = memo(function LexTwig({ vn, from, selected, muted, flip, onClick }: { vn: VerbNode; from: RootNode; selected: boolean; muted: boolean; flip: boolean; onClick: () => void }) {
+  const mx = (from.x + vn.x) / 2;
+  const my = (from.y + vn.y) / 2;
+  const dx = vn.x - from.x;
+  const dy = vn.y - from.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const px = (-dy / len) * len * 0.1 * (flip ? 1 : -1);
+  const py = (dx / len) * len * 0.1 * (flip ? 1 : -1);
+  const d = `M ${from.x} ${from.y} Q ${mx + px} ${my + py} ${vn.x} ${vn.y}`;
+  return (
+    <g opacity={muted ? 0.4 : 1} style={{ cursor: 'pointer', transition: 'opacity .3s' }} onClick={onClick} role="button" aria-label={`الفعل ${vn.lem} (من المعاجم، لم يرد في القرآن)`}>
+      <path d={d} stroke={selected ? 'var(--gold)' : 'var(--twig-lex)'} strokeWidth={selected ? 2.2 : 1.3} fill="none" strokeLinecap="round" strokeDasharray={selected ? undefined : '5 3'} />
+      <circle cx={vn.x} cy={vn.y - 1} r={selected ? 4 : 2.8} fill={selected ? 'var(--gold-2)' : 'var(--panel-solid)'} stroke={selected ? 'var(--gold)' : 'var(--twig-lex)'} strokeWidth="1.5" />
+      <text x={vn.lx} y={vn.ly + 5} textAnchor="middle" fontFamily="var(--font-title)" fontSize="14.5" fontWeight={selected ? 700 : 400} fill={selected ? 'var(--gold)' : 'var(--ink-3)'}>
+        {vn.lem}
       </text>
     </g>
   );

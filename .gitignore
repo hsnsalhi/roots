@@ -25,3 +25,6 @@ dist-ssr
 
 # raw data sources (re-download with scripts/fetch_sources.sh)
 scripts/sources/
+
+# python bytecode
+__pycache__/

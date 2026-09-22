@@ -46,7 +46,7 @@ export function groupBiliteral(roots: IndexRoot[], rule: BiRule, meanings: Recor
     const id = biliteralOf(root.r, rule);
     let b = map.get(id);
     if (!b) {
-      b = { id, letters: [id[0], id[1]], roots: [], verbLemmas: 0, verbTokens: 0, nounLemmas: 0, nounTokens: 0, meaning: meanings[id] };
+      b = { id, letters: [id[0], id[1]], roots: [], verbLemmas: 0, verbTokens: 0, nounLemmas: 0, nounTokens: 0, otherVerbs: 0, meaning: meanings[id] };
       map.set(id, b);
     }
     b.roots.push(root);
@@ -54,6 +54,7 @@ export function groupBiliteral(roots: IndexRoot[], rule: BiRule, meanings: Recor
     b.verbTokens += root.vo;
     b.nounLemmas += root.n;
     b.nounTokens += root.no;
+    b.otherVerbs += root.x ?? 0;
   }
   const order = (c: string) => ALPHABET.indexOf(c);
   const out = [...map.values()];
@@ -108,6 +109,30 @@ export const VERB_FORMS: Record<number, { pattern: string; name: string }> = {
   11: { pattern: 'افْعَالَّ', name: 'المزيد بالهمزة والألف والتضعيف' },
   12: { pattern: 'افْعَوْعَلَ', name: 'المزيد بالهمزة والواو والتضعيف' },
 };
+
+/** lexical sources of the verbs (LexVerb.src codes) */
+export const SOURCES: Record<string, { name: string; short: string; who: string }> = {
+  ar: { name: 'معجم الرموز الوسيط', short: 'الرموز', who: 'طه زروقي (معجم حاسوبي مفتوح)' },
+  wk: { name: 'ويكاموس الإنجليزي', short: 'ويكاموس', who: 'Wiktionary' },
+  qm: { name: 'القاموس المحيط', short: 'القاموس', who: 'الفيروزآبادي (ت ٨١٧هـ)' },
+  sh: { name: 'الصحاح', short: 'الصحاح', who: 'الجوهري (ت ٣٩٣هـ)' },
+  ls: { name: 'لسان العرب', short: 'اللسان', who: 'ابن منظور (ت ٧١١هـ)' },
+};
+export const SOURCE_ORDER = ['ar', 'wk', 'sh', 'qm', 'ls'];
+export const IMPF_VOWEL: Record<string, string> = { u: 'بالضمّ', i: 'بالكسر', a: 'بالفتح' };
+
+export const QUAD_FORMS: Record<number, { pattern: string; name: string }> = {
+  1: { pattern: 'فَعْلَلَ', name: 'الرباعي المجرّد' },
+  2: { pattern: 'تَفَعْلَلَ', name: 'الرباعي المزيد بالتاء' },
+  3: { pattern: 'افْعَنْلَلَ', name: 'الرباعي المزيد بالهمزة والنون' },
+  4: { pattern: 'افْعَلَلَّ', name: 'الرباعي المزيد بالهمزة والتضعيف' },
+};
+
+/** Pattern and name of a verb form, for a triliteral or a quadriliteral root. */
+export function verbFormOf(form: number, root: string): { pattern: string; name: string } {
+  const quad = normLetters(root).length === 4;
+  return (quad ? QUAD_FORMS[form] : VERB_FORMS[form]) ?? VERB_FORMS[form] ?? { pattern: arNum(form), name: '' };
+}
 
 export const TENSE: Record<string, string> = { PERF: 'ماضٍ', IMPF: 'مضارع', IMPV: 'أمر' };
 export const VOICE: Record<string, string> = { ACT: 'مبني للمعلوم', PASS: 'مبني للمجهول' };

@@ -6,6 +6,9 @@ Inputs (scripts/sources/, see fetch_sources.sh):
   quran-uthmani.txt      Tanzil Uthmani Quran text v1.1 (verbatim)
   quran-data.xml         Tanzil metadata (sura names)
   maqayis_*.txt          Ibn Faris, Maqayis al-Lugha (OpenITI editions)
+  arramooz.sqlite        Arramooz Alwaseet verb dictionary (GPL)
+  wiktionary_verbs.jsonl English Wiktionary Arabic verbs (kaikki.org extract, CC BY-SA)
+  lisan.txt, qamus.txt, sihah.txt   Lisan al-Arab, al-Qamus al-Muhit, al-Sihah (OpenITI editions)
   mufradat_*.txt         Al-Raghib, al-Mufradat (OpenITI editions)
 
 Outputs (public/data/):
@@ -26,6 +29,7 @@ from collections import Counter, OrderedDict, defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from dicts import hn, load_maqayis, load_mufradat, strip_diacritics, unmapped_headwords  # noqa: E402
+from lexicon import build_lexicon, load_arramooz, load_classical, load_wiktionary  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "scripts", "sources")
@@ -269,43 +273,97 @@ def main():
     if os.environ.get("DEBUG_HEADWORDS"):
         print("unmapped mufradat headwords:", unmapped_headwords({"masaha": os.path.join(SRC, "mufradat_masaha.txt")}, root_set).most_common())
 
+    # ---- verbs beyond the Quran ------------------------------------------
+    arr = load_arramooz(os.path.join(SRC, "arramooz.sqlite"))
+    wik = load_wiktionary(os.path.join(SRC, "wiktionary_verbs.jsonl"), {norm_root(r) for r in roots} | set(arr))
+    classical = load_classical({"ls": os.path.join(SRC, "lisan.txt"), "qm": os.path.join(SRC, "qamus.txt"),
+                                "sh": os.path.join(SRC, "sihah.txt")}, root_set, lemma_index, root_occ)
+    lexicon: dict[str, list[dict]] = {}
+    for r, rec in roots.items():
+        qv = [(lem, v["form"]) for lem, v in rec["verbs"].items()]
+        n = norm_root(r)
+        lexicon[r] = build_lexicon(n, qv, arr.get(n, []), wik.get(n, []), {c: m[r] for c, m in classical.items() if r in m})
+    lex_all = sum(len(v) for v in lexicon.values())
+    lex_other = sum(1 for v in lexicon.values() for x in v if not x["q"])
+    src_counts = Counter(s for v in lexicon.values() for x in v for s in x["src"])
+    print(f"lexicon verbs {lex_all}  beyond the Quran {lex_other}  sources {dict(src_counts)}  "
+          f"dictionaries: " + ", ".join(f"{c} {len(m)}" for c, m in classical.items()))
+
     # ---- write ------------------------------------------------------------
     ordered = sorted(roots, key=sort_key)
-    os.makedirs(os.path.join(OUT, "roots"), exist_ok=True)
-    for old in os.listdir(os.path.join(OUT, "roots")):
-        os.remove(os.path.join(OUT, "roots", old))
+    for sub in ("roots", "lisan"):
+        os.makedirs(os.path.join(OUT, sub), exist_ok=True)
+        for old in os.listdir(os.path.join(OUT, sub)):
+            os.remove(os.path.join(OUT, sub, old))
     index = []
+    lisan = classical.get("ls", {})
     for i, r in enumerate(ordered):
         rec = roots[r]
         rid = f"r{i:04d}"
+        lex = lexicon[r]
+        # corpus verbs are grouped under the citation form of their lexicon record
+        # (the corpus "lemma" of an imperfect-only verb is an imperfect: يُحْمَدُ → حَمِدَ)
+        by_q = {q: x for x in lex for q in (x["q"] or [])}
+        groups: "OrderedDict[object, dict]" = OrderedDict()
+        for lem, v in rec["verbs"].items():
+            x = by_q.get(lem)
+            key = id(x) if x else ("lem", lem)
+            g = groups.get(key)
+            if not g:
+                g = {"lem": x["v"] if x else lem, "form": x["form"] if x else v["form"], "count": 0,
+                     "forms": OrderedDict(), "lems": [], "src": x["src"] if x else []}
+                groups[key] = g
+            g["count"] += v["count"]
+            g["lems"].append(lem)
+            for k, fm in v["forms"].items():
+                cur = g["forms"].get(k)
+                if cur:
+                    cur["locs"].extend(fm["locs"])
+                else:
+                    g["forms"][k] = dict(fm, locs=list(fm["locs"]))
         verbs = []
-        for v in sorted(rec["verbs"].values(), key=lambda x: (x["form"], -x["count"])):
-            forms = sorted(v["forms"].values(), key=lambda f: -len(f["locs"]))
-            verbs.append({"lem": v["lem"], "form": v["form"], "count": v["count"], "forms": forms})
+        for g in sorted(groups.values(), key=lambda x: (x["form"], -x["count"])):
+            forms = sorted(g["forms"].values(), key=lambda f: -len(f["locs"]))
+            entry = {"lem": g["lem"], "form": g["form"], "count": g["count"], "forms": forms, "src": g["src"]}
+            if g["lems"] != [g["lem"]]:
+                entry["lems"] = g["lems"]
+            verbs.append(entry)
         nouns = sorted(rec["nouns"].values(), key=lambda x: -x["count"])
         vo = sum(v["count"] for v in verbs)
         no = sum(n["count"] for n in nouns)
+        others = [x for x in lex if not x["q"]]
         data = {
             "id": rid, "r": r, "letters": list(norm_root(r)),
             "verbs": verbs, "nouns": nouns,
+            "lexicon": lex,
             "maqayis": maq.get(r, {}).get("text"), "maqayis_ed": maq.get(r, {}).get("ed"),
             "gist": gist(maq.get(r, {}).get("text")),
             "mufradat": muf.get(r, {}).get("text"), "mufradat_ed": muf.get(r, {}).get("ed"),
+            "qamus": classical.get("qm", {}).get(r), "sihah": classical.get("sh", {}).get(r),
+            "lisan": r in lisan,
         }
         with open(os.path.join(OUT, "roots", f"{rid}.json"), "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
+        if r in lisan:
+            with open(os.path.join(OUT, "lisan", f"{rid}.json"), "w", encoding="utf-8") as f:
+                json.dump({"id": rid, "r": r, "text": lisan[r]}, f, ensure_ascii=False, separators=(",", ":"))
         index.append({
             "id": rid, "r": r, "l": norm_root(r),
             "v": len(verbs), "vo": vo, "n": len(nouns), "no": no,
             "lem": [v["lem"] for v in verbs], "nl": [n["lem"] for n in nouns],
-            "d": (1 if r in maq else 0) | (2 if r in muf else 0),
+            "x": len(others), "xl": [x["v"] for x in others],
+            "d": (1 if r in maq else 0) | (2 if r in muf else 0) | (4 if data["qamus"] else 0) | (8 if data["sihah"] else 0) | (16 if r in lisan else 0),
         })
     meta = {
         "generated": t0.strftime("%Y-%m-%d"),
         "counts": {"roots": len(index), "verbRoots": sum(1 for x in index if x["v"]),
                    "verbLemmas": sum(x["v"] for x in index), "verbTokens": sum(x["vo"] for x in index),
                    "nounLemmas": sum(x["n"] for x in index), "words": len(words), "verses": len(verses),
-                   "maqayis": len(maq), "mufradat": len(muf)},
+                   "maqayis": len(maq), "mufradat": len(muf),
+                   "lexVerbs": lex_all, "lexOther": lex_other, "lexRoots": sum(1 for x in index if x["x"]),
+                   "srcArramooz": src_counts.get("ar", 0), "srcWiktionary": src_counts.get("wk", 0),
+                   "srcLisan": src_counts.get("ls", 0), "srcQamus": src_counts.get("qm", 0), "srcSihah": src_counts.get("sh", 0),
+                   "qamus": len(classical.get("qm", {})), "sihah": len(classical.get("sh", {})), "lisan": len(lisan)},
         "suras": [{"n": s, "name": smeta[s]["name"], "ayas": smeta[s]["ayas"], "type": smeta[s]["type"]} for s in range(1, 115)],
         "basmala": basmala,
         "alphabet": list(ALPHABET),

@@ -11,14 +11,14 @@ interface Props {
 }
 
 interface Hit {
-  kind: 'bi' | 'root' | 'verb' | 'noun';
+  kind: 'bi' | 'root' | 'verb' | 'lex' | 'noun';
   label: string;
   meta: string;
   href: string;
   key: string;
 }
 
-const KIND_LABEL: Record<Hit['kind'], string> = { bi: 'جذر ثنائي', root: 'جذر', verb: 'فعل', noun: 'اسم' };
+const KIND_LABEL: Record<Hit['kind'], string> = { bi: 'جذر ثنائي', root: 'جذر', verb: 'فعل في القرآن', lex: 'فعل في المعاجم', noun: 'اسم' };
 
 function normQuery(q: string): string {
   return normLetters(stripDiacritics(q.trim())).replace(/[\s\-‑ـ]/g, '');
@@ -75,6 +75,14 @@ export default function Header({ index, bis, onAbout }: Props) {
           if (nl.includes(nq)) push({ kind: 'noun', label: lem, meta: `الجذر ${r.r}`, href: hrefTree(biOf(r), r.r), key: 'n' + r.r + lem });
         }
         if (out.length > 100) break;
+      }
+      // verbs of the lexica absent from the Quran
+      for (const r of index.roots) {
+        for (const lem of r.xl ?? []) {
+          const nl = normLetters(stripDiacritics(lem));
+          if (nl.includes(nq)) push({ kind: 'lex', label: lem, meta: `الجذر ${r.r} · خارج القرآن`, href: hrefTree(biOf(r), r.r, lem), key: 'x' + r.r + lem });
+        }
+        if (out.length > 120) break;
       }
     }
     return out.slice(0, 60);
@@ -199,6 +207,16 @@ export default function Header({ index, bis, onAbout }: Props) {
               <span>
                 إظهار الجذور التي لا فعل لها في القرآن
                 <small>تُرسم شجيرات صغيرة للجذور الاسمية فقط (مثل: شمس، كوكب)</small>
+              </span>
+            </label>
+          </fieldset>
+          <fieldset>
+            <legend>محتوى الشجرة</legend>
+            <label>
+              <input type="checkbox" checked={settings.showLexicon} onChange={(e) => update({ showLexicon: e.target.checked })} />
+              <span>
+                إظهار أفعال الجذر التي لم ترد في القرآن
+                <small>تُرسم فروعًا رمادية بلا ورق، من المعاجم: الصحاح والقاموس المحيط ولسان العرب والرموز وويكاموس</small>
               </span>
             </label>
           </fieldset>

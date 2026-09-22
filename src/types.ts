@@ -8,9 +8,11 @@ export interface IndexRoot {
   vo: number;      // number of verb tokens in the Quran
   n: number;       // number of nominal lemmas
   no: number;      // number of nominal tokens
-  lem: string[];   // verb lemmas
+  lem: string[];   // verb lemmas (citation forms)
   nl: string[];    // nominal lemmas
-  d: number;       // dictionary bitmask: 1 = Ibn Faris, 2 = al-Raghib
+  x: number;       // verbs of the root attested in the lexica but absent from the Quran
+  xl: string[];    // their citation forms
+  d: number;       // dictionary bitmask: 1 = Ibn Faris, 2 = al-Raghib, 4 = Qamus, 8 = Sihah, 16 = Lisan
 }
 
 export interface SuraMeta {
@@ -43,10 +45,29 @@ export interface VerbForm {
 }
 
 export interface Verb {
-  lem: string;
+  lem: string;    // citation form (the corpus lemma of an imperfect-only verb is an imperfect: it is replaced)
   form: number;   // 1..12 (وزن الفعل)
   count: number;
   forms: VerbForm[];
+  src?: string[]; // lexical sources that also list the verb (see LexVerb.src)
+  lems?: string[]; // corpus lemmas merged under this citation form
+}
+
+/** A verb of the root in the lexica (Arramooz, Wiktionary, Lisan al-Arab, al-Qamus, al-Sihah) */
+export interface LexVerb {
+  v: string;            // vocalised citation form (unvocalised when uv)
+  u: string;            // unvocalised key
+  form: number;
+  imp: string[];        // imperfect vowel(s): "a" | "i" | "u"
+  tr?: boolean;         // transitive
+  q: string[] | null;   // corpus lemmas when the verb occurs in the Quran
+  src: string[];        // "ar" Arramooz, "wk" Wiktionary, "qm" Qamus, "sh" Sihah, "ls" Lisan
+  g?: string[];         // Wiktionary glosses (English)
+  vn?: string[];        // verbal nouns (Wiktionary)
+  word?: string;        // Wiktionary page title
+  alt?: string[];       // other vocalisations met in the sources
+  cite?: [string, string]; // [source, passage of the dictionary entry]
+  uv?: boolean;         // vocalisation unknown (found only in an unvocalised dictionary)
 }
 
 export interface Noun {
@@ -69,6 +90,12 @@ export interface RootFile {
   mufradat_ed: string | null;
   /** Ibn Faris's core-meaning sentence for the root */
   gist: string | null;
+  /** every verb of the root known to the lexica, Quranic ones included */
+  lexicon: LexVerb[];
+  qamus: string | null;
+  sihah: string | null;
+  /** a Lisan al-Arab entry exists in data/lisan/<id>.json */
+  lisan: boolean;
 }
 
 export interface SuraFile {
@@ -89,6 +116,8 @@ export interface BiRoot {
   verbTokens: number;
   nounLemmas: number;
   nounTokens: number;
+  /** verbs of the group's roots attested in the lexica but absent from the Quran */
+  otherVerbs: number;
   /** general common meaning of the group, if one exists */
   meaning?: string;
 }
