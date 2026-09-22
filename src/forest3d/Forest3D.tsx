@@ -100,6 +100,7 @@ export default function Forest3D({ bis, letter, onSelect }: Props) {
       {hover && (
         <div className="tip" style={{ left: hover.x, top: hover.y }}>
           <div className="bi">{dashed(hover.tree.bi.id)}</div>
+          {hover.tree.bi.meaning && <div className="meaning">{hover.tree.bi.meaning}</div>}
           <div className="roots">{hover.tree.bi.roots.slice(0, 8).map((r) => r.r).join(' · ')}{hover.tree.bi.roots.length > 8 ? ' …' : ''}</div>
           <div className="stats">
             {plural(hover.tree.bi.roots.length, 'جذر واحد', 'جذران', 'جذور', 'جذرًا')} · {plural(hover.tree.bi.verbLemmas, 'فعل واحد', 'فعلان', 'أفعال', 'فعلًا')} · {plural(hover.tree.bi.verbTokens, 'موضع واحد', 'موضعان', 'مواضع', 'موضعًا')}

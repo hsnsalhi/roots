@@ -249,6 +249,7 @@ svg text { user-select: none; }
   transform: translate(-50%, calc(-100% - 14px));
 }
 .tip .bi { font-family: var(--font-display); font-size: 26px; color: var(--green); line-height: 1.2; }
+.tip .meaning { font-size: 15px; color: var(--gold); font-weight: 600; margin: -2px 0 2px; }
 .tip .roots { font-family: var(--font-title); font-size: 16px; color: var(--ink-2); }
 .tip .stats { font-size: 13px; color: var(--ink-3); }
 
@@ -380,3 +381,8 @@ kbd { font-family: inherit; background: var(--bg-2); border: 1px solid var(--lin
 
 .chip.hint { color: var(--ink); background: var(--mark); border-color: transparent; }
 .chip.hint button { margin-inline-start: 4px; font-size: 16px; line-height: 1; color: var(--ink-2); }
+
+.meaning-card { background: linear-gradient(135deg, var(--mark), var(--bg-2)); border: 1px solid var(--gold-2); border-radius: var(--radius); padding: 12px 16px; margin: 10px 0 4px; }
+.meaning-card .lbl { font-size: 13px; color: var(--ink-3); }
+.meaning-card .txt { font-family: var(--font-title); font-size: 24px; color: var(--ink); line-height: 1.5; }
+.meaning-card .txt.none { font-family: var(--font-body); font-size: 15px; color: var(--ink-2); }

@@ -40,13 +40,13 @@ export function biliteralOf(root: string, rule: BiRule): string {
   return r.slice(0, 2);
 }
 
-export function groupBiliteral(roots: IndexRoot[], rule: BiRule): BiRoot[] {
+export function groupBiliteral(roots: IndexRoot[], rule: BiRule, meanings: Record<string, string> = {}): BiRoot[] {
   const map = new Map<string, BiRoot>();
   for (const root of roots) {
     const id = biliteralOf(root.r, rule);
     let b = map.get(id);
     if (!b) {
-      b = { id, letters: [id[0], id[1]], roots: [], verbLemmas: 0, verbTokens: 0, nounLemmas: 0, nounTokens: 0 };
+      b = { id, letters: [id[0], id[1]], roots: [], verbLemmas: 0, verbTokens: 0, nounLemmas: 0, nounTokens: 0, meaning: meanings[id] };
       map.set(id, b);
     }
     b.roots.push(root);

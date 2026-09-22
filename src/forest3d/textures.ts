@@ -160,3 +160,40 @@ export function labelTexture(text: string, accent = false): THREE.CanvasTexture 
   ctx.fillText(text, w / 2, h / 2 + 2);
   return tex(c, true, false);
 }
+
+/** A small plaque with the group's general meaning, wrapped on up to two lines. */
+export function plaqueTexture(text: string): THREE.CanvasTexture {
+  const w = 512;
+  const h = 176;
+  const [c, ctx] = canvas(w, h);
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = 'rgba(58, 42, 24, 0.86)';
+  ctx.strokeStyle = 'rgba(227, 194, 107, 0.9)';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.roundRect(8, 12, w - 16, h - 24, 26);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#f6ead0';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.direction = 'rtl';
+  ctx.font = '600 44px "Noto Naskh Arabic", "Amiri", serif';
+  const words = text.split(/\s+/);
+  const lines: string[] = [];
+  let cur = '';
+  for (const wd of words) {
+    const test = cur ? cur + ' ' + wd : wd;
+    if (ctx.measureText(test).width > w - 70 && cur) {
+      lines.push(cur);
+      cur = wd;
+    } else cur = test;
+  }
+  if (cur) lines.push(cur);
+  const shown = lines.slice(0, 2);
+  if (lines.length > 2) shown[1] += '…';
+  const lh = 52;
+  const y0 = h / 2 - ((shown.length - 1) * lh) / 2 + 2;
+  shown.forEach((ln, i) => ctx.fillText(ln, w / 2, y0 + i * lh));
+  return tex(c, true, false);
+}

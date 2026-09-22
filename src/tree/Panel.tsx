@@ -72,6 +72,10 @@ function BiSection({ bi, files, onRoot }: { bi: BiRoot; files: Map<string, RootF
         <div className="stat"><b>{arNum(bi.verbTokens)}</b> موضع للأفعال</div>
         <div className="stat"><b>{arNum(bi.nounLemmas)}</b> مشتق اسمي</div>
       </div>
+      <div className="meaning-card">
+        <div className="lbl">المعنى الجامع للمجموعة · استقراءٌ من أصول ابن فارس</div>
+        {bi.meaning ? <div className="txt">{bi.meaning}</div> : <div className="txt none">لم نتبيّن خيطًا جامعًا واضحًا بين أصول جذور هذه المجموعة.</div>}
+      </div>
       <p className="note">انقر على غصن في الشجرة أو على جذر في القائمة لقراءة أصله عند ابن فارس ومادّته عند الراغب، وعلى فرع لعرض الفعل وآياته.</p>
       <h3>
         الجذور الثلاثية <span className="n">وأصولها عند ابن فارس</span>
@@ -79,7 +83,7 @@ function BiSection({ bi, files, onRoot }: { bi: BiRoot; files: Map<string, RootF
       <ul className="list">
         {bi.roots.map((r) => {
           const f = files.get(r.r);
-          const gist = firstSentence(f?.maqayis ?? null);
+          const gist = f?.gist ?? firstSentence(f?.maqayis ?? null);
           return (
             <li key={r.r}>
               <button onClick={() => onRoot(r.r)}>

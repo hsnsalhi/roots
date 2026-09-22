@@ -5,7 +5,7 @@ import type { BiRoot } from '../types';
 import { layout3D, type Grove3D, type Layout3D, type Tree3D } from './layout3d';
 import { rng } from './noise';
 import { TERRAIN_SIZE, buildTerrain, terrainHeight } from './terrain';
-import { barkTexture, grassTexture, labelTexture, leafTexture, signTexture } from './textures';
+import { barkTexture, grassTexture, labelTexture, leafTexture, plaqueTexture, signTexture } from './textures';
 import { buildVariantSet, disposeVariants, type Quality, type VariantSet } from './treeGen';
 
 export interface SceneCallbacks {
@@ -66,6 +66,7 @@ export class ForestScene {
   private layout: Layout3D | null = null;
   private forest = new THREE.Group();
   private labels = new THREE.Group();
+  private plaques = new THREE.Group();
   private instanceOwners = new Map<THREE.Object3D, Tree3D[]>();
   private treeInstance = new Map<Tree3D, { trunk: THREE.InstancedMesh; leaves: THREE.InstancedMesh; index: number; sprite: THREE.Sprite; leafColor: THREE.Color; trunkColor: THREE.Color }>();
   private hovered: Tree3D | null = null;
@@ -193,6 +194,7 @@ export class ForestScene {
 
     this.scene.add(this.forest);
     this.scene.add(this.labels);
+    this.scene.add(this.plaques);
 
     const el = this.renderer.domElement;
     el.addEventListener('pointermove', this.onPointerMove);
@@ -302,6 +304,15 @@ export class ForestScene {
         sprite.scale.set(7, 2.6, 1);
         sprite.userData.tree = t;
         this.labels.add(sprite);
+        if (t.bi.meaning) {
+          // the general meaning of the group, on a plaque at the foot of the tree
+          const plaque = new THREE.Sprite(new THREE.SpriteMaterial({ map: plaqueTexture(t.bi.meaning), depthTest: true, transparent: true, fog: false, toneMapped: false }));
+          plaque.position.set(t.x, t.y + (t.shrub ? 1.1 : 1.9), t.z);
+          plaque.scale.set(t.shrub ? 6.5 : 8.5, t.shrub ? 2.2 : 2.9, 1);
+          plaque.userData.tree = t;
+          plaque.userData.base = plaque.position.clone();
+          this.plaques.add(plaque);
+        }
         this.treeInstance.set(t, { trunk, leaves, index: i, sprite, leafColor, trunkColor });
       });
       trunk.instanceMatrix.needsUpdate = true;
@@ -447,10 +458,12 @@ export class ForestScene {
         }
       });
     }
-    for (const sprite of [...this.labels.children] as THREE.Sprite[]) {
-      this.labels.remove(sprite);
-      sprite.material.map?.dispose();
-      sprite.material.dispose();
+    for (const group of [this.labels, this.plaques]) {
+      for (const sprite of [...group.children] as THREE.Sprite[]) {
+        group.remove(sprite);
+        sprite.material.map?.dispose();
+        sprite.material.dispose();
+      }
     }
     this.instanceOwners.clear();
     this.treeInstance.clear();
@@ -563,7 +576,7 @@ export class ForestScene {
   private pick(): Tree3D | null {
     if (!this.layout) return null;
     this.raycaster.setFromCamera(this.pointer, this.camera);
-    const targets = [...this.labels.children, ...this.forest.children.filter((o) => (o as THREE.InstancedMesh).isInstancedMesh && this.instanceOwners.has(o))];
+    const targets = [...this.labels.children, ...this.plaques.children, ...this.forest.children.filter((o) => (o as THREE.InstancedMesh).isInstancedMesh && this.instanceOwners.has(o))];
     const hits = this.raycaster.intersectObjects(targets, false);
     for (const h of hits) {
       if ((h.object as THREE.Sprite).isSprite) return h.object.userData.tree as Tree3D;
@@ -636,6 +649,20 @@ export class ForestScene {
       const mat = sprite.material;
       if (Math.abs(mat.opacity - o) > 0.01) mat.opacity = o;
       sprite.visible = o > 0.02;
+    }
+    const toCam = new THREE.Vector3();
+    for (const sprite of this.plaques.children as THREE.Sprite[]) {
+      const base = sprite.userData.base as THREE.Vector3;
+      const d = base.distanceTo(camPos);
+      const o = d < 55 ? 1 : d > 120 ? 0 : 1 - (d - 55) / 65;
+      const mat = sprite.material;
+      if (Math.abs(mat.opacity - o) > 0.01) mat.opacity = o;
+      sprite.visible = o > 0.02;
+      if (sprite.visible) {
+        // keep the plaque just in front of the trunk, on the viewer's side
+        toCam.subVectors(camPos, base).setY(0).normalize();
+        sprite.position.copy(base).addScaledVector(toCam, 1.6);
+      }
     }
     if (this.needsHoverCheck && !this.pointerDown) {
       this.needsHoverCheck = false;

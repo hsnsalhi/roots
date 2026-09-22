@@ -27,6 +27,8 @@
 - **الغابة**: مشهد ثلاثي الأبعاد (WebGL) فيه ٤٨٦ شجرة (بالقاعدة الافتراضية) موزّعة على بساتين بحسب الحرف الأول، على أرض متموّجة
   بعشبها وظلالها وسمائها ونهارها وليلها. ارتفاع الشجرة بعدد مواضع أفعالها في القرآن، وفوقها لوحة بحرفي جذرها، والشجيرات الصغيرة جذورٌ لم يرد منها فعل.
   دوران بالسحب، اقتراب بالعجلة أو بإصبعين، شريط حروف، لافتات خشبية للبساتين، خريطة مصغّرة، وبحث عن جذر أو فعل أو كلمة.
+- **المعنى الجامع**: لوحة صغيرة عند جذع كلّ شجرة تحمل المعنى العامّ المشترك بين جذور المجموعة حين يوجد (نحو: القطع والفصل، الاجتماع والضمّ).
+  وهو خلاصة استقرائية استُخلصت من الأصول التي يذكرها ابن فارس لكلّ جذر (ملف `scripts/bi_meanings.json`)، لا يُعرض إلا حين يجمع أكثر الجذور خيطٌ واحد، وهو اجتهاد قابل للمراجعة لا نصّ معجمي.
 - **الشجرة**: كلّ غصن جذر ثلاثي وكلّ فرع فعل. النقر على الغصن يعرض أصل الجذر عند ابن فارس ومادّته عند الراغب ومشتقّاته الاسمية؛
   والنقر على الفعل يعرض وزنه وصيغه الواردة (الزمن، الإسناد، البناء للمعلوم/المجهول) وآياته كلّها مع تظليل الكلمة.
 - **الأرقام**: ١٦٥١ جذرًا (منها ٩٤١ ورد منه فعل)، ١٤٧٤ فعلًا في ١٩٣٥٣ موضعًا، ٣١٦٣ مشتقًّا اسميًا، ٦٢٣٦ آية.
@@ -87,6 +89,9 @@ Le script aligne mot à mot la morphologie du corpus avec le texte de Tanzil (la
 verset des sourates), regroupe les occurrences par lemme et par forme (temps, personne, voix, mode), puis extrait les entrées
 des deux dictionnaires (édition Shamela/JK pour Ibn Fāris, édition Masaha/JK pour al-Rāghib) en supprimant l'apparat des éditeurs modernes.
 Couverture : 1 538 entrées d'Ibn Fāris et 1 523 entrées d'al-Rāghib pour 1 651 racines.
+Le « sens commun » (المعنى الجامع) affiché sous chaque arbre vient du fichier `scripts/bi_meanings.json` : une synthèse
+prudente, groupe par groupe, des sens fondamentaux qu'Ibn Fāris donne aux racines du groupe (null quand aucun fil conducteur
+net ne se dégage). C'est une interprétation révisable, pas une entrée de dictionnaire ; le fichier peut être corrigé à la main.
 
 ## Structure
 

@@ -32,7 +32,7 @@ function Shell() {
     if (!index) return [];
     return settings.showEmpty ? index.roots : index.roots.filter((r) => r.v > 0);
   }, [index, settings.showEmpty]);
-  const bis = useMemo(() => groupBiliteral(roots, settings.rule), [roots, settings.rule]);
+  const bis = useMemo(() => groupBiliteral(roots, settings.rule, index?.bi ?? {}), [roots, settings.rule, index]);
   const biMap = useMemo(() => new Map(bis.map((b) => [b.id, b])), [bis]);
 
   useEffect(() => {

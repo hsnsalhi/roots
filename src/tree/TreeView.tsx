@@ -129,6 +129,14 @@ function TreeStage({ bi, layout, route, onRoot, onVerb }: { bi: BiRoot; layout: 
               <text textAnchor="middle" y="14" fontFamily="var(--font-display)" fontSize="36" fill="var(--green)">
                 {dashed(bi.id)}
               </text>
+              {bi.meaning && (
+                <g>
+                  <rect x={-(bi.meaning.length * 8.2 + 28) / 2} y="36" width={bi.meaning.length * 8.2 + 28} height="30" rx="12" fill="var(--mark)" stroke="var(--gold-2)" strokeWidth="1.5" />
+                  <text textAnchor="middle" y="56" fontFamily="var(--font-body)" fontSize="15" fontWeight="600" fill="var(--ink)">
+                    {bi.meaning}
+                  </text>
+                </g>
+              )}
             </g>
           </g>
         </svg>

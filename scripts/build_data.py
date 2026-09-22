@@ -35,6 +35,42 @@ ALPHABET = "أبتثجحخدذرزسشصضطظعغفقكلمنهوي"
 ORDER = {c: i for i, c in enumerate(ALPHABET)}
 WEAK = set("وي")
 
+_LETTER_NAMES = "همزة|باء|تاء|ثاء|جيم|حاء|خاء|دال|ذال|راء|زاء|زاي|سين|شين|صاد|ضاد|طاء|ظاء|عين|غين|فاء|قاف|كاف|لام|ميم|نون|هاء|واو|ياء"
+_GIST_LEAD = re.compile(r"^(?:\s*و?\s*ال(?:%s))+(?:\s*و?\s*الحرف\s+المعتل(?:\s*وهو\s+ال(?:واو|ياء))?)?(?:\s*و?\s*ال(?:مهموز|مضاعف))?\s*[:،,]?\s*" % _LETTER_NAMES)
+
+
+def gist(text: str | None) -> str | None:
+    """The core-meaning sentence of an Ibn Faris entry, without the spelled letters."""
+    if not text:
+        return None
+    p = text.split("\n")[0]
+    q = _GIST_LEAD.sub("", p)
+    m = re.search(r"[.؛]", q)
+    if m and m.start() > 25:
+        q = q[:m.start()]
+    q = q.strip(" :،,")
+    if len(q) > 230:
+        cut = q[:230]
+        i = max(cut.rfind("،"), cut.rfind(" "))
+        q = cut[:i if i > 120 else 230] + "…"
+    return q or None
+
+
+def load_bi_meanings() -> dict[str, str]:
+    """Curated general meanings of the biliteral groups (scripts/bi_meanings.json)."""
+    path = os.path.join(ROOT, "scripts", "bi_meanings.json")
+    if not os.path.exists(path):
+        return {}
+    raw = json.load(open(path, encoding="utf-8"))
+    out = {}
+    for k, v in raw.items():
+        if k.startswith("_"):
+            continue
+        m = v.get("m") if isinstance(v, dict) else v
+        if m:
+            out[k] = m.strip()
+    return out
+
 
 def norm_root(r: str) -> str:
     r = hn(r)
@@ -253,6 +289,7 @@ def main():
             "id": rid, "r": r, "letters": list(norm_root(r)),
             "verbs": verbs, "nouns": nouns,
             "maqayis": maq.get(r, {}).get("text"), "maqayis_ed": maq.get(r, {}).get("ed"),
+            "gist": gist(maq.get(r, {}).get("text")),
             "mufradat": muf.get(r, {}).get("text"), "mufradat_ed": muf.get(r, {}).get("ed"),
         }
         with open(os.path.join(OUT, "roots", f"{rid}.json"), "w", encoding="utf-8") as f:
@@ -273,8 +310,10 @@ def main():
         "basmala": basmala,
         "alphabet": list(ALPHABET),
     }
+    bi = load_bi_meanings()
+    meta["counts"]["biMeanings"] = len(bi)
     with open(os.path.join(OUT, "index.json"), "w", encoding="utf-8") as f:
-        json.dump({"meta": meta, "roots": index}, f, ensure_ascii=False, separators=(",", ":"))
+        json.dump({"meta": meta, "roots": index, "bi": bi}, f, ensure_ascii=False, separators=(",", ":"))
     print("done in", dt.datetime.now() - t0)
     print(json.dumps(meta["counts"], ensure_ascii=False))
 

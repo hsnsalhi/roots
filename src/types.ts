@@ -29,6 +29,8 @@ export interface IndexFile {
     alphabet: string[];
   };
   roots: IndexRoot[];
+  /** curated general meaning of each biliteral group (المعنى الجامع), when one exists */
+  bi: Record<string, string>;
 }
 
 export interface VerbForm {
@@ -65,6 +67,8 @@ export interface RootFile {
   maqayis_ed: string | null;
   mufradat: string | null;
   mufradat_ed: string | null;
+  /** Ibn Faris's core-meaning sentence for the root */
+  gist: string | null;
 }
 
 export interface SuraFile {
@@ -85,6 +89,8 @@ export interface BiRoot {
   verbTokens: number;
   nounLemmas: number;
   nounTokens: number;
+  /** general common meaning of the group, if one exists */
+  meaning?: string;
 }
 
 export type BiRule = 'first-two' | 'strong';
