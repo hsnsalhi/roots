@@ -48,7 +48,7 @@ def gist(text: str | None) -> str | None:
     m = re.search(r"[.؛]", q)
     if m and m.start() > 25:
         q = q[:m.start()]
-    q = q.strip(" :،,")
+    q = q.strip(" :،,.؛")
     if len(q) > 230:
         cut = q[:230]
         i = max(cut.rfind("،"), cut.rfind(" "))

@@ -148,9 +148,30 @@ def resolve_roots(h: str, body: str, rootsN: dict[str, str], lemma_index, freq,
                   surface: bool = False, spelled: tuple[str | None, str | None] = (None, None)) -> list[str]:
     """Roots (corpus spelling) that a heading + entry body should be attached to."""
     hN = hn(h)
-    # a two-letter heading is a geminate root when one exists (رب → ربب)
-    if len(hN) == 2 and hN + hN[1] in rootsN:
-        return [rootsN[hN + hN[1]]]
+    if not surface and len(hN) >= 4:
+        hN = hN[:2] + hN[2:].replace("ى", "ي")
+    # a two-letter heading is a geminate root (رب → ربب); in Ibn Faris it can be
+    # nothing else, so an entry for a non-Quranic geminate is dropped rather than
+    # attached to a weak-final root (خش must not feed خشي)
+    if len(hN) == 2:
+        if hN + hN[1] in rootsN:
+            return [rootsN[hN + hN[1]]]
+        if not surface:
+            return []
+    # Ibn Faris heads the entries of weak-final roots with every weak letter they
+    # take, e.g. (بلوي) = بلو + بلي, (عصوى) = عصو + عصي, (بكوء) = بكو + بكأ + بكي
+    if not surface and len(hN) >= 4 and all(c in "ويأ" for c in hN[2:]):
+        tail = set(hN[2:])
+        if tail & {"و", "ي"}:
+            tail |= {"و", "ي"}
+        found = [rootsN[hN[:2] + c] for c in "ويأ" if c in tail and hN[:2] + c in rootsN]
+        if found:
+            return found
+    # a sound heading spelled exactly like a Quranic root wins over its variants;
+    # weak-final headings (بلي/بلو …) keep the variant logic, since one Ibn Faris
+    # entry usually covers both the و and the ي root
+    if not surface and hN in rootsN and hN[-1] not in "ويىا":
+        return [rootsN[hN]]
     cands = [rootsN[v] for v in heading_variants(h, surface) if v in rootsN]
     if not cands:
         return []
