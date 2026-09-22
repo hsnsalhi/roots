@@ -38,7 +38,7 @@ export default function Forest({ bis, letter, onSelect }: Props) {
   function fitGroveT(g: Grove, vp: { width: number; height: number }) {
     const gw = g.x1 - g.x0 + 80;
     const gh = layout.rowH * 0.95;
-    const k = Math.min(Math.max(0.35, Math.min((vp.width - 30) / gw, (vp.height - 110) / gh)), 1.4);
+    const k = Math.min(Math.max(vp.width < 600 ? 0.55 : 0.35, Math.min((vp.width - 30) / gw, (vp.height - 110) / gh)), 1.4);
     return { k, x: vp.width - (g.x1 + 40) * k - 12, y: (vp.height - gh * k) / 2 + 30 - (g.y - gh * 0.85) * k };
   }
 

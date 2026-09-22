@@ -365,3 +365,15 @@ kbd { font-family: inherit; background: var(--bg-2); border: 1px solid var(--lin
 /* tree labels only when zoomed in enough to read them */
 .labels-off .tlabel { display: none; }
 .tree:hover .tlabel { fill: var(--green); }
+
+/* compact header on narrow screens */
+@media (max-width: 640px) {
+  .header { gap: 6px; padding: 0 8px; }
+  .brand small { display: none; }
+  .brand h1 { font-size: 20px; }
+  .brand svg { width: 28px; height: 28px; }
+  .header .spacer { display: none; }
+  .search { flex: 1; min-width: 0; width: auto; }
+  .search input { font-size: 15px; padding: 7px 34px 7px 10px; }
+  .iconbtn { width: 34px; height: 34px; }
+}

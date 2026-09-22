@@ -57,13 +57,12 @@ sont les verbes attestés dans le Coran, avec toutes leurs occurrences et le sen
 
 ## Déploiement (GitHub Pages)
 
-Le dépôt contient un workflow (`.github/workflows/deploy.yml`) qui construit le site et le publie sur GitHub Pages à chaque
-push sur la branche par défaut. Il tente d'activer Pages automatiquement ; si le premier déploiement échoue avec une erreur
-« Pages not enabled », activez-le une fois à la main : **Settings → Pages → Build and deployment → Source : GitHub Actions**,
-puis relancez le workflow (onglet *Actions → Deploy to GitHub Pages → Run workflow*).
+Le workflow `.github/workflows/deploy.yml` construit le site à chaque push sur la branche par défaut et publie le dossier
+`dist/` dans la branche `gh-pages`. GitHub Pages sert cette branche à l'adresse `https://<utilisateur>.github.io/<dépôt>/`.
 
-Le site est ensuite servi à l'adresse `https://<utilisateur>.github.io/<dépôt>/` (la configuration Vite utilise une base relative,
-donc n'importe quel sous-chemin fonctionne).
+Si le site n'apparaît pas après le premier déploiement, activez Pages une seule fois à la main :
+**Settings → Pages → Build and deployment → Source : Deploy from a branch → Branch : `gh-pages` / `(root)`**.
+La configuration Vite utilise une base relative, donc n'importe quel sous-chemin fonctionne.
 
 ## Développement local
 
