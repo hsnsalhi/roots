@@ -82,9 +82,9 @@ export function dashed(root: string): string {
   return [...normLetters(root)].join('‑');
 }
 
-const AR_DIGITS = '٠١٢٣٤٥٦٧٨٩';
+/** Numbers are shown with the digits 0–9 (not 0–9); Eastern digits met in data are converted. */
 export function arNum(n: number | string): string {
-  return String(n).replace(/\d/g, (d) => AR_DIGITS[Number(d)]);
+  return String(n).replace(/[0-9]/g, (d) => String(d.charCodeAt(0) - 0x660));
 }
 
 export function plural(n: number, one: string, two: string, few: string, many: string): string {
@@ -114,9 +114,9 @@ export const VERB_FORMS: Record<number, { pattern: string; name: string }> = {
 export const SOURCES: Record<string, { name: string; short: string; who: string }> = {
   ar: { name: 'معجم الرموز الوسيط', short: 'الرموز', who: 'طه زروقي (معجم حاسوبي مفتوح)' },
   wk: { name: 'ويكاموس الإنجليزي', short: 'ويكاموس', who: 'Wiktionary' },
-  qm: { name: 'القاموس المحيط', short: 'القاموس', who: 'الفيروزآبادي (ت ٨١٧هـ)' },
-  sh: { name: 'الصحاح', short: 'الصحاح', who: 'الجوهري (ت ٣٩٣هـ)' },
-  ls: { name: 'لسان العرب', short: 'اللسان', who: 'ابن منظور (ت ٧١١هـ)' },
+  qm: { name: 'القاموس المحيط', short: 'القاموس', who: 'الفيروزآبادي (ت 817هـ)' },
+  sh: { name: 'الصحاح', short: 'الصحاح', who: 'الجوهري (ت 393هـ)' },
+  ls: { name: 'لسان العرب', short: 'اللسان', who: 'ابن منظور (ت 711هـ)' },
 };
 export const SOURCE_ORDER = ['ar', 'wk', 'sh', 'qm', 'ls'];
 export const IMPF_VOWEL: Record<string, string> = { u: 'بالضمّ', i: 'بالكسر', a: 'بالفتح' };

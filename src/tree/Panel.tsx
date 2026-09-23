@@ -207,14 +207,14 @@ function RootSection({ bi, file, index, onVerb }: { bi: BiRoot; file: RootFile; 
       </div>
 
       <h3>المعنى في المعاجم</h3>
-      <DictEntry key={file.id + 'm'} title="مقاييس اللغة" author="ابن فارس (ت ٣٩٥هـ)" text={file.maqayis} />
-      <DictEntry key={file.id + 'r'} title="المفردات في غريب القرآن" author="الراغب الأصفهاني (ت ٥٠٢هـ)" text={file.mufradat} />
-      <DictEntry key={file.id + 's'} title="الصحاح" author="الجوهري (ت ٣٩٣هـ)" text={file.sihah ?? null} />
-      <DictEntry key={file.id + 'q'} title="القاموس المحيط" author="الفيروزآبادي (ت ٨١٧هـ)" text={file.qamus ?? null} />
+      <DictEntry key={file.id + 'm'} title="مقاييس اللغة" author="ابن فارس (ت 395هـ)" text={file.maqayis} />
+      <DictEntry key={file.id + 'r'} title="المفردات في غريب القرآن" author="الراغب الأصفهاني (ت 502هـ)" text={file.mufradat} />
+      <DictEntry key={file.id + 's'} title="الصحاح" author="الجوهري (ت 393هـ)" text={file.sihah ?? null} />
+      <DictEntry key={file.id + 'q'} title="القاموس المحيط" author="الفيروزآبادي (ت 817هـ)" text={file.qamus ?? null} />
       {file.lisan ? (
-        <DictEntry key={file.id + 'l'} title="لسان العرب" author="ابن منظور (ت ٧١١هـ)" load={() => loadLisan(file.id)} />
+        <DictEntry key={file.id + 'l'} title="لسان العرب" author="ابن منظور (ت 711هـ)" load={() => loadLisan(file.id)} />
       ) : (
-        <DictEntry key={file.id + 'l0'} title="لسان العرب" author="ابن منظور (ت ٧١١هـ)" text={null} />
+        <DictEntry key={file.id + 'l0'} title="لسان العرب" author="ابن منظور (ت 711هـ)" text={null} />
       )}
 
       <h3>
