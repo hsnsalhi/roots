@@ -84,7 +84,7 @@ export function dashed(root: string): string {
 
 /** Numbers are shown with the digits 0–9 (not 0–9); Eastern digits met in data are converted. */
 export function arNum(n: number | string): string {
-  return String(n).replace(/[0-9]/g, (d) => String(d.charCodeAt(0) - 0x660));
+  return String(n).replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x660));
 }
 
 export function plural(n: number, one: string, two: string, few: string, many: string): string {
