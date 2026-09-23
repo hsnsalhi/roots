@@ -14,14 +14,14 @@ curl -fsSL -o quran-uthmani.txt \
   "https://tanzil.net/pub/download/index.php?quranType=uthmani&outType=txt-2&agree=true"
 curl -fsSL -o quran-data.xml "https://tanzil.net/res/text/metadata/quran-data.xml"
 
-# 3. Ibn Faris (d. 395 AH), Mu'jam Maqayis al-Lugha — OpenITI corpus editions
+# 3. Ibn Faris (d. 1004 CE / 395 AH), Mu'jam Maqayis al-Lugha — OpenITI corpus editions
 OI="https://raw.githubusercontent.com/OpenITI"
 curl -fsSL -o maqayis_shamela.txt \
   "$OI/0400AH/master/data/0395IbnFarisQazwini/0395IbnFarisQazwini.MucjamMaqayis/0395IbnFarisQazwini.MucjamMaqayis.Shamela0021710-ara1"
 curl -fsSL -o maqayis_jk.txt \
   "$OI/0400AH/master/data/0395IbnFarisQazwini/0395IbnFarisQazwini.MucjamMaqayis/0395IbnFarisQazwini.MucjamMaqayis.JK008008-ara1"
 
-# 4. Al-Raghib al-Isfahani (d. 502 AH), al-Mufradat fi Gharib al-Qur'an — OpenITI corpus editions
+# 4. Al-Raghib al-Isfahani (d. 1108 CE / 502 AH), al-Mufradat fi Gharib al-Qur'an — OpenITI corpus editions
 curl -fsSL -o mufradat_masaha.txt \
   "$OI/0525AH/master/data/0502RaghibIsbahani/0502RaghibIsbahani.Mufradat/0502RaghibIsbahani.Mufradat.Masaha003644-ara1"
 curl -fsSL -o mufradat_shamela.txt \
@@ -46,8 +46,8 @@ python3 ../extract_wiktionary.py "$wikt" wiktionary_verbs.jsonl
 rm -f "$wikt"
 
 # 7. Three classical dictionaries (public-domain texts, Shamela digitisations, OpenITI corpus):
-#    Ibn Manzur (d. 711 AH), Lisan al-Arab; al-Firuzabadi (d. 817 AH), al-Qamus al-Muhit;
-#    al-Jawhari (d. 393 AH), al-Sihah
+#    Ibn Manzur (d. 1311 CE / 711 AH), Lisan al-Arab; al-Firuzabadi (d. 1415 CE / 817 AH), al-Qamus al-Muhit;
+#    al-Jawhari (d. 1003 CE / 393 AH), al-Sihah
 curl -fsSL -o lisan.txt \
   "$OI/0725AH/master/data/0711IbnManzurIfriqi/0711IbnManzurIfriqi.LisanCarab/0711IbnManzurIfriqi.LisanCarab.Shamela0001687-ara1.mARkdown"
 curl -fsSL -o qamus.txt \

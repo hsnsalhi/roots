@@ -2,11 +2,11 @@
 
 Both texts come from the OpenITI corpus (mARkdown format):
 
-* Ibn Faris (d. 395 AH), Mu'jam Maqayis al-Lugha  — every entry opens with the
+* Ibn Faris (d. 1004 CE / 395 AH), Mu'jam Maqayis al-Lugha  — every entry opens with the
   root's letters spelled out ("القاف واللام والباء ...") and gives the root's
   core meaning(s).  Primary edition: Shamela0021710 (section headings
   ``### | (root)``); fallback: JK008008 (inline ``( root )`` headings).
-* Al-Raghib al-Isfahani (d. 502 AH), al-Mufradat fi Gharib al-Qur'an — the
+* Al-Raghib al-Isfahani (d. 1108 CE / 502 AH), al-Mufradat fi Gharib al-Qur'an — the
   classic dictionary of Quranic vocabulary, organised by root.  Primary
   edition: Masaha003644 (each headword is a one-word paragraph); fallback:
   JK001150 (``# headword :`` paragraphs).

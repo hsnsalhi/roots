@@ -114,9 +114,9 @@ export const VERB_FORMS: Record<number, { pattern: string; name: string }> = {
 export const SOURCES: Record<string, { name: string; short: string; who: string }> = {
   ar: { name: 'معجم الرموز الوسيط', short: 'الرموز', who: 'طه زروقي (معجم حاسوبي مفتوح)' },
   wk: { name: 'ويكاموس الإنجليزي', short: 'ويكاموس', who: 'Wiktionary' },
-  qm: { name: 'القاموس المحيط', short: 'القاموس', who: 'الفيروزآبادي (ت 817هـ)' },
-  sh: { name: 'الصحاح', short: 'الصحاح', who: 'الجوهري (ت 393هـ)' },
-  ls: { name: 'لسان العرب', short: 'اللسان', who: 'ابن منظور (ت 711هـ)' },
+  qm: { name: 'القاموس المحيط', short: 'القاموس', who: 'الفيروزآبادي، ت 1415 م (817 هـ)' },
+  sh: { name: 'الصحاح', short: 'الصحاح', who: 'الجوهري، ت 1003 م (393 هـ)' },
+  ls: { name: 'لسان العرب', short: 'اللسان', who: 'ابن منظور، ت 1311 م (711 هـ)' },
 };
 export const SOURCE_ORDER = ['ar', 'wk', 'sh', 'qm', 'ls'];
 export const IMPF_VOWEL: Record<string, string> = { u: 'بالضمّ', i: 'بالكسر', a: 'بالفتح' };
