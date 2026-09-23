@@ -36,12 +36,13 @@ export function loadSura(n: number): Promise<SuraFile> {
   return p;
 }
 
-/** The Lisan al-Arab entry of a root (large: loaded only on request). */
-export function loadLisan(id: string): Promise<string | null> {
-  let p = lisanCache.get(id);
+/** The entry of a root in one of the large dictionaries (ls, thd, mhk, taj): loaded only on request. */
+export function loadDict(code: string, id: string): Promise<string | null> {
+  const key = code + '/' + id;
+  let p = lisanCache.get(key);
   if (!p) {
-    p = getJSON<{ text: string }>(`${BASE}/lisan/${id}.json`).then((d) => d.text ?? null);
-    lisanCache.set(id, p);
+    p = getJSON<{ text: string }>(`${BASE}/dict/${code}/${id}.json`).then((d) => d.text ?? null);
+    lisanCache.set(key, p);
   }
   return p;
 }

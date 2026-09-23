@@ -114,11 +114,16 @@ export const VERB_FORMS: Record<number, { pattern: string; name: string }> = {
 export const SOURCES: Record<string, { name: string; short: string; who: string }> = {
   ar: { name: 'معجم الرموز الوسيط', short: 'الرموز', who: 'طه زروقي (معجم حاسوبي مفتوح)' },
   wk: { name: 'ويكاموس الإنجليزي', short: 'ويكاموس', who: 'Wiktionary' },
-  qm: { name: 'القاموس المحيط', short: 'القاموس', who: 'الفيروزآبادي، ت 1415 م (817 هـ)' },
+  ayn: { name: 'كتاب العين', short: 'العين', who: 'الخليل بن أحمد، ت 786 م (170 هـ)' },
+  thd: { name: 'تهذيب اللغة', short: 'التهذيب', who: 'الأزهري، ت 980 م (370 هـ)' },
   sh: { name: 'الصحاح', short: 'الصحاح', who: 'الجوهري، ت 1003 م (393 هـ)' },
+  mhk: { name: 'المحكم والمحيط الأعظم', short: 'المحكم', who: 'ابن سيده، ت 1066 م (458 هـ)' },
   ls: { name: 'لسان العرب', short: 'اللسان', who: 'ابن منظور، ت 1311 م (711 هـ)' },
+  qm: { name: 'القاموس المحيط', short: 'القاموس', who: 'الفيروزآبادي، ت 1415 م (817 هـ)' },
+  taj: { name: 'تاج العروس', short: 'التاج', who: 'الزبيدي، ت 1790 م (1205 هـ)' },
 };
-export const SOURCE_ORDER = ['ar', 'wk', 'sh', 'qm', 'ls'];
+/** chronological for the dictionaries, the two modern verb lists first */
+export const SOURCE_ORDER = ['ar', 'wk', 'ayn', 'thd', 'sh', 'mhk', 'ls', 'qm', 'taj'];
 export const IMPF_VOWEL: Record<string, string> = { u: 'بالضمّ', i: 'بالكسر', a: 'بالفتح' };
 
 export const QUAD_FORMS: Record<number, { pattern: string; name: string }> = {

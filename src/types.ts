@@ -92,10 +92,26 @@ export interface RootFile {
   gist: string | null;
   /** every verb of the root known to the lexica, Quranic ones included */
   lexicon: LexVerb[];
+  /** entries of the short dictionaries, inline */
+  ayn: string | null;
   qamus: string | null;
   sihah: string | null;
-  /** a Lisan al-Arab entry exists in data/lisan/<id>.json */
-  lisan: boolean;
+  /** codes of the large dictionaries whose entry exists in data/dict/<code>/<id>.json (ls, thd, mhk, taj) */
+  dicts: string[];
+  /** the orderings of the root's letters (تقاليب الجذر) */
+  perms: PermRoot[];
+}
+
+/** One ordering of a root's letters */
+export interface PermRoot {
+  r: string;          // the letters, normalised (hamza → أ)
+  self?: boolean;     // this is the root itself
+  q?: string;         // id of the Quranic root when it is one
+  v?: number;         // its verb lemmas in the Quran
+  n?: number;         // its nominal lemmas in the Quran
+  g?: string;         // Ibn Faris's gist for it
+  src?: string[];     // lexica that have an entry for it (ayn, thd, sh, mhk, ls, taj, ar, wk)
+  k?: 'used' | 'unused';  // al-Khalil's verdict in the Ayn
 }
 
 export interface SuraFile {

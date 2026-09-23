@@ -6,8 +6,9 @@
 
 كلّ شجرة في الغابة جذرٌ ثنائي، تتفرّع منها الجذور الثلاثية التي تشترك في حرفيه، ثم الأفعال الواردة في القرآن من كلّ جذر
 مع تصريفاتها ومواضعها في المصحف، وإلى جانبها أفعال الجذر الأخرى التي لم ترد في القرآن كما تذكرها المعاجم،
-ومعاني الجذر في أمّهات المعاجم: «مقاييس اللغة» لابن فارس، و«المفردات في غريب القرآن» للراغب الأصفهاني، و«الصحاح» للجوهري،
-و«القاموس المحيط» للفيروزآبادي، و«لسان العرب» لابن منظور.
+ومعاني الجذر في أمّهات المعاجم: «مقاييس اللغة» لابن فارس، و«كتاب العين» للخليل، و«المفردات في غريب القرآن» للراغب الأصفهاني،
+و«الصحاح» للجوهري، و«تهذيب اللغة» للأزهري، و«المحكم» لابن سيده، و«لسان العرب» لابن منظور، و«القاموس المحيط» للفيروزآبادي،
+و«تاج العروس» للزبيدي؛ ولكلّ جذر قائمة بتقاليبه على منهج الخليل.
 
 🔗 **الموقع:** <https://hsnsalhi.github.io/roots/>
 
@@ -36,7 +37,9 @@
   وفي الصحاح والقاموس المحيط ولسان العرب (يُحمَّل عند الطلب) ومشتقّاته الاسمية؛ والنقر على الفعل يعرض وزنه وصيغه الواردة
   (الزمن، الإسناد، البناء للمعلوم/المجهول) وآياته كلّها مع تظليل الكلمة، ثم المصادر المعجمية التي تذكره؛ والنقر على فعل رمادي يعرض
   وزنه ومضارعه وتعدّيه ومصدره ومصادره وشاهدًا من مادّة الجذر في أحد المعاجم.
-- **أفعال المعاجم**: عند كلّ فعل شارات بالمصادر التي وُجد فيها: القرآن، الرموز (معجم الرموز الوسيط)، ويكاموس، الصحاح، القاموس، اللسان.
+- **تقاليب الجذر**: لكلّ جذر قائمة بالجذور المؤلَّفة من حروفه نفسها بترتيب آخر (على منهج الخليل في العين): ما ورد منها في القرآن مع أصله
+  عند ابن فارس ورابط إلى شجرته، وما في المعاجم فقط، وما لم نجده؛ مع حكم الخليل (مستعمل/مهمل) كما جاء في عناوين أبواب العين وقوائم التهذيب.
+- **أفعال المعاجم**: عند كلّ فعل شارات بالمصادر التي وُجد فيها: القرآن، الرموز (معجم الرموز الوسيط)، ويكاموس، العين، التهذيب، الصحاح، المحكم، اللسان، القاموس، التاج.
   أفعال المعاجم القديمة (وهي غير مشكولة) تُستخرج آليًا بصيغ الاستشهاد المعتادة في مادّة الجذر (فَعَلَ يَفْعُلُ، المصادر، الأوزان المزيدة المميِّزة)،
   فهي توثيق تقريبي قد يفوته فعل أو يخطئ في آخر.
 - **الأرقام**: 1651 جذرًا (منها 941 ورد منه فعل)، 1470 فعلًا قرآنيًا في 19353 موضعًا، 3163 مشتقًّا اسميًا، 6236 آية؛
@@ -50,7 +53,7 @@
 | [مشروع تنزيل](https://tanzil.net) — الرسم العثماني، الإصدار 1.1 | نصّ الآيات (منقول حرفيًا من غير تغيير) | CC BY 3.0 |
 | ابن فارس، ت 1004 م (395 هـ)، **معجم مقاييس اللغة** — عبر [OpenITI](https://github.com/OpenITI) | الأصل المعنوي لكلّ جذر | نصّ تراثي في الملك العام |
 | الراغب الأصفهاني، ت 1108 م (502 هـ)، **المفردات في غريب القرآن** — عبر [OpenITI](https://github.com/OpenITI) | مادّة الجذر في مفردات القرآن | نصّ تراثي في الملك العام |
-| الجوهري، ت 1003 م (393 هـ)، **الصحاح**؛ الفيروزآبادي، ت 1415 م (817 هـ)، **القاموس المحيط**؛ ابن منظور، ت 1311 م (711 هـ)، **لسان العرب** — رقمنة المكتبة الشاملة عبر [OpenITI](https://github.com/OpenITI) | مادّة الجذر، واستخراج أفعاله وتوثيقها | نصوص تراثية في الملك العام |
+| الخليل بن أحمد، ت 786 م (170 هـ)، **كتاب العين**؛ الأزهري، ت 980 م (370 هـ)، **تهذيب اللغة**؛ الجوهري، ت 1003 م (393 هـ)، **الصحاح**؛ ابن سيده، ت 1066 م (458 هـ)، **المحكم**؛ ابن منظور، ت 1311 م (711 هـ)، **لسان العرب**؛ الفيروزآبادي، ت 1415 م (817 هـ)، **القاموس المحيط**؛ الزبيدي، ت 1790 م (1205 هـ)، **تاج العروس** — رقمنة المكتبة الشاملة عبر [OpenITI](https://github.com/OpenITI) | مادّة الجذر، وتقاليبه، واستخراج أفعاله وتوثيقها | نصوص تراثية في الملك العام |
 | [معجم الرموز الوسيط](https://github.com/linuxscout/arramooz) (طه زروقي ومحمد كبداني)، عبر حزمة `arramooz-pysqlite` | أفعال الجذر بضبطها ومضارعها وتعدّيها | GNU GPL |
 | [ويكاموس الإنجليزي](https://en.wiktionary.org) عبر مستخرج [kaikki.org](https://kaikki.org/dictionary/Arabic/) (Wiktextract) | أفعال الجذر بأوزانها ومضارعها ومصادرها ومعانيها | CC BY-SA 4.0 |
 
@@ -102,7 +105,10 @@ python3 scripts/build_data.py # écrit public/data/index.json, roots/*.json, qur
 Le script aligne mot à mot la morphologie du corpus avec le texte de Tanzil (la basmala d'ouverture est détachée du premier
 verset des sourates), regroupe les occurrences par lemme et par forme (temps, personne, voix, mode), puis extrait les entrées
 des deux dictionnaires (édition Shamela/JK pour Ibn Fāris, édition Masaha/JK pour al-Rāghib) en supprimant l'apparat des éditeurs modernes.
-Couverture : 1 549 entrées d'Ibn Fāris, 1 523 d'al-Rāghib, 1 593 du Ṣiḥāḥ, 1 537 du Qāmūs et 1 626 du Lisān pour 1 651 racines.
+Couverture : 1 549 entrées d'Ibn Fāris, 1 547 du Kitāb al-ʿAyn, 1 523 d'al-Rāghib, 1 593 du Ṣiḥāḥ, 1 301 du Tahḏīb, 1 370 du Muḥkam,
+1 626 du Lisān, 1 537 du Qāmūs et 1 628 du Tāǧ al-ʿarūs pour 1 651 racines. Les trois dictionnaires de l'école d'al-Ḫalīl (ʿAyn, Tahḏīb,
+Muḥkam) sont organisés par groupes de lettres et permutations (تقاليب) : `scripts/lexica.py` reconstitue la racine de chaque entrée à
+partir des titres de chapitres et relève les verdicts « مستعمل / مهمل » d'al-Ḫalīl, affichés dans la section « تقاليب الجذر » de chaque racine.
 
 Les verbes hors Coran viennent de deux sources vocalisées, Arramooz Alwaseet (GPL) et le Wiktionnaire anglais (extrait
 kaikki.org, CC BY-SA), fusionnées par squelette consonantique et forme verbale, puis de l'extraction automatique des trois
@@ -124,9 +130,10 @@ index.html, src/            application (React 19, TypeScript, Vite 8, three.js 
 src/forest3d/               vue « forêt » 3D : terrain, arbres procéduraux texturés, ombres, ciel/brume, herbe, caméra orbitale, minicarte
 src/tree/                   vue « arbre » : disposition en éventail, panneau (dictionnaires, formes, versets)
 scripts/build_data.py       pipeline de données ;  scripts/dicts.py : analyseurs des dictionnaires de sens
-scripts/lexicon.py          verbes hors Coran : Arramooz, Wiktionnaire, Lisān/Qāmūs/Ṣiḥāḥ (morphologie, attestation, fusion)
+scripts/lexicon.py          verbes hors Coran : Arramooz, Wiktionnaire, dictionnaires classiques (morphologie, attestation, fusion)
+scripts/lexica.py           analyseurs du ʿAyn, du Tahḏīb, du Muḥkam et du Tāǧ ; verdicts d'al-Ḫalīl sur les permutations
 scripts/extract_wiktionary.py   réduction de l'extrait kaikki.org du Wiktionnaire
-public/data/                données générées (≈ 40 Mo dont 20 Mo de Lisān, chargées à la demande par racine)
+public/data/                données générées (≈ 80 Mo ; Tahḏīb, Muḥkam, Lisān et Tāǧ dans data/dict/, chargés à la demande par racine)
 .github/workflows/          déploiement GitHub Pages
 ```
 

@@ -9,6 +9,7 @@ Inputs (scripts/sources/, see fetch_sources.sh):
   arramooz.sqlite        Arramooz Alwaseet verb dictionary (GPL)
   wiktionary_verbs.jsonl English Wiktionary Arabic verbs (kaikki.org extract, CC BY-SA)
   lisan.txt, qamus.txt, sihah.txt   Lisan al-Arab, al-Qamus al-Muhit, al-Sihah (OpenITI editions)
+  ayn.txt, tahdhib.txt, muhkam.txt, taj.txt   Kitab al-Ayn, Tahdhib al-Lugha, al-Muhkam, Taj al-Arus (OpenITI editions)
   mufradat_*.txt         Al-Raghib, al-Mufradat (OpenITI editions)
 
 Outputs (public/data/):
@@ -20,6 +21,7 @@ Outputs (public/data/):
 from __future__ import annotations
 
 import datetime as dt
+import itertools
 import json
 import os
 import re
@@ -29,7 +31,8 @@ from collections import Counter, OrderedDict, defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from dicts import hn, load_maqayis, load_mufradat, strip_diacritics, unmapped_headwords  # noqa: E402
-from lexicon import build_lexicon, load_arramooz, load_classical, load_wiktionary  # noqa: E402
+from lexicon import build_lexicon, khalil_verdicts, load_arramooz, load_classical, load_wiktionary  # noqa: E402
+from lexica import norm_root as lex_norm, perm_key  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "scripts", "sources")
@@ -276,8 +279,14 @@ def main():
     # ---- verbs beyond the Quran ------------------------------------------
     arr = load_arramooz(os.path.join(SRC, "arramooz.sqlite"))
     wik = load_wiktionary(os.path.join(SRC, "wiktionary_verbs.jsonl"), {norm_root(r) for r in roots} | set(arr))
+    heads: dict[str, set[str]] = {}
     classical = load_classical({"ls": os.path.join(SRC, "lisan.txt"), "qm": os.path.join(SRC, "qamus.txt"),
-                                "sh": os.path.join(SRC, "sihah.txt")}, root_set, lemma_index, root_occ)
+                                "sh": os.path.join(SRC, "sihah.txt"), "ayn": os.path.join(SRC, "ayn.txt"),
+                                "thd": os.path.join(SRC, "tahdhib.txt"), "mhk": os.path.join(SRC, "muhkam.txt"),
+                                "taj": os.path.join(SRC, "taj.txt")}, root_set, lemma_index, root_occ, heads)
+    khalil = khalil_verdicts(os.path.join(SRC, "ayn.txt"), os.path.join(SRC, "tahdhib.txt"))
+    heads["ar"] = set(arr)
+    heads["wk"] = set(wik)
     lexicon: dict[str, list[dict]] = {}
     for r, rec in roots.items():
         qv = [(lem, v["form"]) for lem, v in rec["verbs"].items()]
@@ -291,12 +300,55 @@ def main():
 
     # ---- write ------------------------------------------------------------
     ordered = sorted(roots, key=sort_key)
-    for sub in ("roots", "lisan"):
+    ON_DEMAND = ("ls", "thd", "mhk", "taj")          # large entries, served per root on request
+    for sub in ["roots"] + [os.path.join("dict", c) for c in ON_DEMAND]:
         os.makedirs(os.path.join(OUT, sub), exist_ok=True)
         for old in os.listdir(os.path.join(OUT, sub)):
             os.remove(os.path.join(OUT, sub, old))
+    if os.path.isdir(os.path.join(OUT, "lisan")):
+        for old in os.listdir(os.path.join(OUT, "lisan")):
+            os.remove(os.path.join(OUT, "lisan", old))
+        os.rmdir(os.path.join(OUT, "lisan"))
     index = []
-    lisan = classical.get("ls", {})
+    id_of = {r: f"r{i:04d}" for i, r in enumerate(ordered)}
+    rootsN = {norm_root(r): r for r in roots}
+    PERM_SOURCES = ("ayn", "thd", "sh", "mhk", "ls", "taj", "ar", "wk")
+
+    def permutations_of(r: str) -> list[dict]:
+        """The other orderings of the root's letters: Quranic ones with their id and
+        Ibn Faris gist, the rest with the lexica that have an entry for them, and
+        al-Khalil's verdict (used / unused) when the Ayn states it."""
+        letters = list(norm_root(r))
+        if not 3 <= len(letters) <= 4:
+            return []
+        seen: list[str] = []
+        for p in itertools.permutations(letters):
+            cand = "".join(p)
+            if cand not in seen:
+                seen.append(cand)
+        verdicts = khalil.get(perm_key(r), {})
+        out = []
+        for cand in seen:
+            item: dict = {"r": cand}
+            cr = rootsN.get(cand)
+            if cr:
+                item["q"] = id_of[cr]
+                item["v"] = len(roots[cr]["verbs"])
+                item["n"] = len(roots[cr]["nouns"])
+                g = gist(maq.get(cr, {}).get("text"))
+                if g:
+                    item["g"] = g
+            srcs = [c for c in PERM_SOURCES if cand in heads.get(c, ())]
+            if srcs:
+                item["src"] = srcs
+            k = verdicts.get(cand)
+            if k:
+                item["k"] = k
+            if cand == norm_root(r):
+                item["self"] = True
+            out.append(item)
+        return out
+
     for i, r in enumerate(ordered):
         rec = roots[r]
         rid = f"r{i:04d}"
@@ -332,6 +384,7 @@ def main():
         vo = sum(v["count"] for v in verbs)
         no = sum(n["count"] for n in nouns)
         others = [x for x in lex if not x["q"]]
+        available = [c for c in ON_DEMAND if r in classical.get(c, {})]
         data = {
             "id": rid, "r": r, "letters": list(norm_root(r)),
             "verbs": verbs, "nouns": nouns,
@@ -339,20 +392,24 @@ def main():
             "maqayis": maq.get(r, {}).get("text"), "maqayis_ed": maq.get(r, {}).get("ed"),
             "gist": gist(maq.get(r, {}).get("text")),
             "mufradat": muf.get(r, {}).get("text"), "mufradat_ed": muf.get(r, {}).get("ed"),
+            "ayn": classical.get("ayn", {}).get(r),
             "qamus": classical.get("qm", {}).get(r), "sihah": classical.get("sh", {}).get(r),
-            "lisan": r in lisan,
+            "dicts": available,
+            "perms": permutations_of(r),
         }
         with open(os.path.join(OUT, "roots", f"{rid}.json"), "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
-        if r in lisan:
-            with open(os.path.join(OUT, "lisan", f"{rid}.json"), "w", encoding="utf-8") as f:
-                json.dump({"id": rid, "r": r, "text": lisan[r]}, f, ensure_ascii=False, separators=(",", ":"))
+        for c in available:
+            with open(os.path.join(OUT, "dict", c, f"{rid}.json"), "w", encoding="utf-8") as f:
+                json.dump({"id": rid, "r": r, "text": classical[c][r]}, f, ensure_ascii=False, separators=(",", ":"))
+        bits = {"ayn": 32, "thd": 64, "mhk": 128, "taj": 256}
         index.append({
             "id": rid, "r": r, "l": norm_root(r),
             "v": len(verbs), "vo": vo, "n": len(nouns), "no": no,
             "lem": [v["lem"] for v in verbs], "nl": [n["lem"] for n in nouns],
             "x": len(others), "xl": [x["v"] for x in others],
-            "d": (1 if r in maq else 0) | (2 if r in muf else 0) | (4 if data["qamus"] else 0) | (8 if data["sihah"] else 0) | (16 if r in lisan else 0),
+            "d": (1 if r in maq else 0) | (2 if r in muf else 0) | (4 if data["qamus"] else 0) | (8 if data["sihah"] else 0)
+                 | (16 if "ls" in available else 0) | sum(b for c, b in bits.items() if r in classical.get(c, {})),
         })
     meta = {
         "generated": t0.strftime("%Y-%m-%d"),
@@ -363,7 +420,11 @@ def main():
                    "lexVerbs": lex_all, "lexOther": lex_other, "lexRoots": sum(1 for x in index if x["x"]),
                    "srcArramooz": src_counts.get("ar", 0), "srcWiktionary": src_counts.get("wk", 0),
                    "srcLisan": src_counts.get("ls", 0), "srcQamus": src_counts.get("qm", 0), "srcSihah": src_counts.get("sh", 0),
-                   "qamus": len(classical.get("qm", {})), "sihah": len(classical.get("sh", {})), "lisan": len(lisan)},
+                   "qamus": len(classical.get("qm", {})), "sihah": len(classical.get("sh", {})), "lisan": len(classical.get("ls", {})),
+                   "ayn": len(classical.get("ayn", {})), "tahdhib": len(classical.get("thd", {})), "muhkam": len(classical.get("mhk", {})),
+                   "taj": len(classical.get("taj", {})),
+                   "srcAyn": src_counts.get("ayn", 0), "srcTahdhib": src_counts.get("thd", 0), "srcMuhkam": src_counts.get("mhk", 0),
+                   "srcTaj": src_counts.get("taj", 0), "khalil": sum(len(v) for v in khalil.values())},
         "suras": [{"n": s, "name": smeta[s]["name"], "ayas": smeta[s]["ayas"], "type": smeta[s]["type"]} for s in range(1, 115)],
         "basmala": basmala,
         "alphabet": list(ALPHABET),

@@ -29,8 +29,9 @@ from collections import defaultdict
 from dicts import (_MARKERS, AR, clean_body, heading_variants, hn, resolve_roots,
                    strip_diacritics)
 
-SOURCES = {"ar": "أرموز", "wk": "ويكاموس", "ls": "لسان العرب", "qm": "القاموس المحيط", "sh": "الصحاح"}
-DICTS = ("qm", "sh", "ls")          # citation preference: the Qamus is the most concise
+SOURCES = {"ar": "أرموز", "wk": "ويكاموس", "ls": "لسان العرب", "qm": "القاموس المحيط", "sh": "الصحاح",
+           "ayn": "العين", "thd": "تهذيب اللغة", "mhk": "المحكم", "taj": "تاج العروس"}
+DICTS = ("qm", "sh", "ayn", "mhk", "thd", "ls", "taj")   # citation preference: the concise ones first
 
 SHADDA = "ّ"
 FATHA, DAMMA, KASRA, SUKUN = "َ", "ُ", "ِ", "ْ"
@@ -1034,22 +1035,34 @@ def _qamus_roots(hw: str, body: str, section: str, rootsN: dict[str, str], lemma
     return chosen
 
 
-def load_classical(paths: dict[str, str], roots: set[str], lemma_index, freq) -> dict[str, dict[str, str]]:
-    """{code: {root: cleaned entry text}} for the dictionaries in `paths`."""
+def load_classical(paths: dict[str, str], roots: set[str], lemma_index, freq,
+                   heads: dict[str, set[str]] | None = None) -> dict[str, dict[str, str]]:
+    """{code: {root: cleaned entry text}} for the dictionaries in `paths`; when
+    `heads` is given, heads[code] receives every root that has an entry heading
+    (normalised), whether or not it is a Quranic root."""
+    from lexica import choose_permutation, norm_root as lex_norm, parse_ayn, parse_muhkam, parse_tahdhib, parse_taj
     rootsN = {hn(r): r for r in roots}
+    known = set(rootsN)
     result: dict[str, dict[str, str]] = {}
-    for code, parser in (("ls", parse_lisan), ("qm", parse_qamus), ("sh", parse_sihah)):
+    parsers = (("ls", parse_lisan), ("qm", parse_qamus), ("sh", parse_sihah),
+               ("ayn", lambda p: parse_ayn(p)[0]), ("thd", lambda p: parse_tahdhib(p)[0]),
+               ("mhk", parse_muhkam), ("taj", parse_taj))
+    for code, parser in parsers:
         if code not in paths:
             continue
         per_root: dict[str, list[str]] = defaultdict(list)
+        head_set: set[str] = set()
         for h, body, section in parser(paths[code]):
+            if code == "mhk" and h.startswith("*"):
+                h = choose_permutation(h, body, rootsN, lemma_index, known)
             if code == "qm":
                 targets = _qamus_roots(h, body, section, rootsN, lemma_index)
             else:
                 if not re.fullmatch(r"[%s]{2,6}" % AR, h):
                     continue
+                head_set.add(lex_norm(h))
                 targets = resolve_roots(h, body, rootsN, lemma_index, freq)
-                fasl, bab = section.split("|") if "|" in section else ("", "")
+                fasl, bab = section.split("|") if "|" in section and code in ("ls", "sh", "taj") else ("", "")
                 if code == "sh":
                     fasl = ""          # the Shamela Sihah lacks some section headings
                 # the chapter headings of the Shamela texts are incomplete: the section is
@@ -1065,7 +1078,23 @@ def load_classical(paths: dict[str, str], roots: set[str], lemma_index, freq) ->
             for r in targets:
                 per_root[r].append(cleaned)
         result[code] = {r: "\n\n".join(dict.fromkeys(parts)) for r, parts in per_root.items()}
+        if heads is not None:
+            heads[code] = head_set
     return result
+
+
+def khalil_verdicts(ayn_path: str, tahdhib_path: str | None = None) -> dict[str, dict[str, str]]:
+    """{chapter key (sorted distinct letters): {root: "used" | "unused"}} from the
+    chapter headings of the Ayn, completed by the Tahdhib's «مستعمل» lists."""
+    from lexica import parse_ayn, parse_tahdhib
+    _, v = parse_ayn(ayn_path)
+    out: dict[str, dict[str, str]] = {k: dict(d) for k, d in v.items()}
+    if tahdhib_path:
+        _, v2 = parse_tahdhib(tahdhib_path)
+        for k, d in v2.items():
+            for r, verdict in d.items():
+                out.setdefault(k, {}).setdefault(r, verdict)
+    return out
 
 
 # --------------------------------------------------------------------------

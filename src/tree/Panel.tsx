@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
-import { IMPF_VOWEL, LETTER_NAMES, MOOD, POS, SOURCES, SOURCE_ORDER, TENSE, VOICE, arNum, dashed, pgnLabel, plural, spaced, verbFormOf } from '../roots';
+import { IMPF_VOWEL, LETTER_NAMES, MOOD, POS, SOURCES, SOURCE_ORDER, TENSE, VOICE, arNum, biliteralOf, dashed, pgnLabel, plural, spaced, verbFormOf } from '../roots';
 import { hrefTree, type Route } from '../router';
-import { loadLisan } from '../data';
-import type { BiRoot, IndexFile, LexVerb, Noun, RootFile, Verb, VerbForm } from '../types';
+import { loadDict } from '../data';
+import { useSettings } from '../settings';
+import type { BiRoot, IndexFile, LexVerb, Noun, PermRoot, RootFile, Verb, VerbForm } from '../types';
 import Verses from './Verses';
 import DictEntry from './DictEntry';
 
@@ -188,6 +189,84 @@ function BiSection({ bi, files, onRoot }: { bi: BiRoot; files: Map<string, RootF
   );
 }
 
+/** One of the large dictionaries, fetched only when the reader asks for it. */
+function LargeDict({ file, code }: { file: RootFile; code: string }) {
+  const src = SOURCES[code];
+  const available = (file.dicts ?? []).includes(code);
+  return available ? (
+    <DictEntry key={file.id + code} title={src.name} author={src.who} load={() => loadDict(code, file.id)} />
+  ) : (
+    <DictEntry key={file.id + code + '0'} title={src.name} author={src.who} text={null} />
+  );
+}
+
+const KHALIL: Record<string, string> = { used: 'مستعمل عند الخليل', unused: 'مهمل عند الخليل' };
+
+/** تقاليب الجذر: the other orderings of the root's letters, on al-Khalil's plan. */
+function PermSection({ file, index }: { file: RootFile; index: IndexFile }) {
+  const { settings } = useSettings();
+  const byId = useMemo(() => new Map(index.roots.map((r) => [r.id, r])), [index]);
+  const perms = file.perms ?? [];
+  if (perms.length === 0) return null;
+  const used = perms.filter((p) => p.k === 'used').map((p) => spaced(p.r));
+  const unused = perms.filter((p) => p.k === 'unused').map((p) => spaced(p.r));
+  const quranic = perms.filter((p) => p.q && !p.self).length;
+  const lexical = perms.filter((p) => !p.q && p.src?.length).length;
+  const label = (p: PermRoot) => {
+    if (p.self) return 'هذا الجذر';
+    if (p.q) {
+      const parts = ['في القرآن'];
+      if (p.v) parts.push(plural(p.v, 'فعل واحد', 'فعلان', 'أفعال', 'فعلًا'));
+      if (p.n) parts.push(plural(p.n, 'اسم واحد', 'اسمان', 'أسماء', 'اسمًا'));
+      return parts.join(' · ');
+    }
+    if (p.src?.length) return 'في المعاجم، لم يرد في القرآن';
+    return 'لم نجده في المعاجم';
+  };
+  return (
+    <>
+      <h3>
+        تقاليب الجذر <span className="n">الجذور المؤلَّفة من حروفه · على منهج الخليل في العين</span>
+      </h3>
+      <p className="note">
+        {plural(perms.length - 1, 'تقليب واحد', 'تقليبان', 'تقاليب', 'تقليبًا')} لحروف {spaced(file.r)}: {arNum(quranic)} في القرآن، و{arNum(lexical)} في المعاجم فقط.
+        {(used.length > 0 || unused.length > 0) && (
+          <>
+            {' '}عند الخليل: {used.length > 0 && <>المستعمل {used.join('، ')}</>}
+            {used.length > 0 && unused.length > 0 && '؛ '}
+            {unused.length > 0 && <>والمهمل {unused.join('، ')}</>}.
+          </>
+        )}
+      </p>
+      <ul className="list perms">
+        {perms.map((p) => {
+          const target = p.q ? byId.get(p.q) : undefined;
+          const inner = (
+            <div style={{ minWidth: 0, flex: 1, display: 'grid', gap: 4 }}>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'baseline', flexWrap: 'wrap' }}>
+                <span className={'lem' + (p.q ? '' : ' lex')}>{spaced(p.r)}</span>
+                <span className="form">{label(p)}</span>
+                {p.k && <i className={'badge k ' + p.k}>{KHALIL[p.k]}</i>}
+              </div>
+              {p.g && <div className="note" style={{ whiteSpace: 'normal', lineHeight: 1.6 }}>{p.g}</div>}
+              <SourceBadges src={p.src} />
+            </div>
+          );
+          return (
+            <li key={p.r} className={p.self ? 'self' : ''}>
+              {target && !p.self ? (
+                <a className="row" href={hrefTree(biliteralOf(target.r, settings.rule), target.r)}>{inner}</a>
+              ) : (
+                <div className="row">{inner}</div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </>
+  );
+}
+
 function RootSection({ bi, file, index, onVerb }: { bi: BiRoot; file: RootFile; index: IndexFile; onVerb: (lem: string) => void }) {
   const [noun, setNoun] = useState<Noun | null>(null);
   const verbTokens = file.verbs.reduce((s, v) => s + v.count, 0);
@@ -208,14 +287,16 @@ function RootSection({ bi, file, index, onVerb }: { bi: BiRoot; file: RootFile; 
 
       <h3>المعنى في المعاجم</h3>
       <DictEntry key={file.id + 'm'} title="مقاييس اللغة" author="ابن فارس، ت 1004 م (395 هـ)" text={file.maqayis} />
+      <DictEntry key={file.id + 'a'} title="كتاب العين" author={SOURCES.ayn.who} text={file.ayn ?? null} />
       <DictEntry key={file.id + 'r'} title="المفردات في غريب القرآن" author="الراغب الأصفهاني، ت 1108 م (502 هـ)" text={file.mufradat} />
-      <DictEntry key={file.id + 's'} title="الصحاح" author="الجوهري، ت 1003 م (393 هـ)" text={file.sihah ?? null} />
-      <DictEntry key={file.id + 'q'} title="القاموس المحيط" author="الفيروزآبادي، ت 1415 م (817 هـ)" text={file.qamus ?? null} />
-      {file.lisan ? (
-        <DictEntry key={file.id + 'l'} title="لسان العرب" author="ابن منظور، ت 1311 م (711 هـ)" load={() => loadLisan(file.id)} />
-      ) : (
-        <DictEntry key={file.id + 'l0'} title="لسان العرب" author="ابن منظور، ت 1311 م (711 هـ)" text={null} />
-      )}
+      <DictEntry key={file.id + 's'} title="الصحاح" author={SOURCES.sh.who} text={file.sihah ?? null} />
+      <LargeDict file={file} code="thd" />
+      <LargeDict file={file} code="mhk" />
+      <LargeDict file={file} code="ls" />
+      <DictEntry key={file.id + 'q'} title="القاموس المحيط" author={SOURCES.qm.who} text={file.qamus ?? null} />
+      <LargeDict file={file} code="taj" />
+
+      <PermSection file={file} index={index} />
 
       <h3>
         الأفعال في القرآن <span className="n">{arNum(file.verbs.length)}</span>

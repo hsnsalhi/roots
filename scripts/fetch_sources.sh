@@ -54,4 +54,16 @@ curl -fsSL -o qamus.txt \
   "$OI/0825AH/master/data/0817MajdDinFiruzabadi/0817MajdDinFiruzabadi.QamusMuhit/0817MajdDinFiruzabadi.QamusMuhit.Shamela0007283-ara1"
 curl -fsSL -o sihah.txt \
   "$OI/0400AH/master/data/0393IbnHammadJawhari/0393IbnHammadJawhari.SihahTajLugha/0393IbnHammadJawhari.SihahTajLugha.Shamela0023235-ara1"
+
+# 8. Four more dictionaries (public-domain texts, Shamela digitisations, OpenITI corpus):
+#    al-Khalil (d. 786 CE / 170 AH), Kitab al-Ayn; al-Azhari (d. 980 CE / 370 AH), Tahdhib al-Lugha;
+#    Ibn Sida (d. 1066 CE / 458 AH), al-Muhkam; al-Zabidi (d. 1790 CE / 1205 AH), Taj al-Arus
+curl -fsSL -o ayn.txt \
+  "$OI/0175AH/master/data/0170KhalilFarahidi/0170KhalilFarahidi.Cayn/0170KhalilFarahidi.Cayn.Shamela0001682-ara1"
+curl -fsSL -o tahdhib.txt \
+  "$OI/0375AH/master/data/0370AbuMansurAzhari/0370AbuMansurAzhari.TahdhibLugha/0370AbuMansurAzhari.TahdhibLugha.Shamela0007031-ara1"
+curl -fsSL -o muhkam.txt \
+  "$OI/0475AH/master/data/0458IbnSidaMursi/0458IbnSidaMursi.MuhkamWaMuhit/0458IbnSidaMursi.MuhkamWaMuhit.Shamela0009757-ara1"
+curl -fsSL -o taj.txt \
+  "$OI/1225AH/master/data/1205MurtadaZabidi/1205MurtadaZabidi.TajCarus/1205MurtadaZabidi.TajCarus.Shamela0007030-ara1"
 echo "done"

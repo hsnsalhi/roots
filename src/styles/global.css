@@ -410,3 +410,11 @@ kbd { font-family: inherit; background: var(--bg-2); border: 1px solid var(--lin
 .chip.legend .dot.q { background: var(--green-2); }
 .chip.legend .dot.x { background: transparent; border: 2px solid var(--twig-lex); }
 @media (max-width: 640px) { .chip.legend { display: none; } }
+
+/* ---- تقاليب الجذر ------------------------------------------------------ */
+.list li a.row { text-decoration: none; color: inherit; }
+.list li a.row:hover { background: var(--bg-2); }
+.list.perms li.self .row { background: var(--green-4); border-color: var(--green-3); }
+.list.perms .lem { font-size: 19px; }
+.badge.k { background: var(--mark); color: var(--ink); border-color: var(--gold-2); }
+.badge.k.unused { background: var(--bg-2); color: var(--ink-3); border-color: var(--line); text-decoration: line-through; }
