@@ -422,3 +422,11 @@ kbd { font-family: inherit; background: var(--bg-2); border: 1px solid var(--lin
 .list.perms .lem { font-size: 19px; }
 .badge.k { background: var(--mark); color: var(--ink); border-color: var(--gold-2); }
 .badge.k.unused { background: var(--bg-2); color: var(--ink-3); border-color: var(--line); text-decoration: line-through; }
+
+/* ---- the tree view: bark, leaves, sway ------------------------------------ */
+:root { --bark-3: #5a3a20; --leaf-light: #a9d489; --leaf-vein: #f3f7e6; --sky-glow: 0.55; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) { --bark-3: #4a3220; --leaf-light: #8bc47a; --leaf-vein: #dbe8c8; --sky-glow: 0.16; } }
+:root[data-theme='dark'] { --bark-3: #4a3220; --leaf-light: #8bc47a; --leaf-vein: #dbe8c8; --sky-glow: 0.16; }
+@keyframes leafSway { 0%, 100% { transform: rotate(-2.5deg); } 50% { transform: rotate(2.5deg); } }
+.leaves { transform-box: view-box; transform-origin: 0 0; animation: leafSway 4.5s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .leaves { animation: none; } }
