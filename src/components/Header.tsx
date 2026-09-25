@@ -7,7 +7,7 @@ import type { BiRoot, IndexFile, IndexRoot } from '../types';
 interface Props {
   index: IndexFile | null;
   bis: BiRoot[];
-  onAbout: () => void;
+  aboutOpen?: boolean;
 }
 
 interface Hit {
@@ -24,7 +24,7 @@ function normQuery(q: string): string {
   return normLetters(stripDiacritics(q.trim())).replace(/[\s\-‑ـ]/g, '');
 }
 
-export default function Header({ index, bis, onAbout }: Props) {
+export default function Header({ index, bis, aboutOpen }: Props) {
   const { settings, update } = useSettings();
   const [q, setQ] = useState('');
   const [open, setOpen] = useState(false);
@@ -167,9 +167,9 @@ export default function Header({ index, bis, onAbout }: Props) {
           </div>
         )}
       </div>
-      <button className="iconbtn" title="حول التطبيق والمصادر" aria-label="حول التطبيق" onClick={onAbout}>
+      <a className="iconbtn" href="#/about" title="حول التطبيق والمصادر" aria-label="حول التطبيق" aria-current={aboutOpen ? 'page' : undefined}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v6M12 7.5v.5" /></svg>
-      </button>
+      </a>
       <button className="iconbtn" title={dark ? 'الوضع النهاري' : 'الوضع الليلي'} aria-label="تبديل السمة" onClick={() => update({ theme: dark ? 'light' : 'dark' })}>
         {dark ? (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>

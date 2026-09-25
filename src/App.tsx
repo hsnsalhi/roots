@@ -22,7 +22,6 @@ function Shell() {
   const { settings } = useSettings();
   const [index, setIndex] = useState<IndexFile | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [about, setAbout] = useState(false);
 
   useEffect(() => {
     loadIndex().then(setIndex).catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)));
@@ -38,11 +37,13 @@ function Shell() {
   useEffect(() => {
     if (route.view === 'tree') {
       document.title = `${dashed(route.bi)}${route.root ? ' · ' + route.root : ''} — غابة الجذور`;
-    } else document.title = 'غابة الجذور — جذور أفعال القرآن الكريم';
+    } else if (route.view === 'about') document.title = 'حول التطبيق والمصادر — غابة الجذور';
+    else document.title = 'غابة الجذور — جذور أفعال القرآن الكريم';
   }, [route]);
 
   let content;
-  if (error) content = <div className="error">تعذّر تحميل البيانات: {error}</div>;
+  if (route.view === 'about') content = <About index={index} />;
+  else if (error) content = <div className="error">تعذّر تحميل البيانات: {error}</div>;
   else if (!index) content = <div className="loading"><div><div className="spinner" />جارٍ تحميل الغابة…</div></div>;
   else if (route.view === 'tree') {
     const bi = biMap.get(route.bi);
@@ -61,9 +62,8 @@ function Shell() {
 
   return (
     <div className="app">
-      <Header index={index} bis={bis} onAbout={() => setAbout(true)} />
+      <Header index={index} bis={bis} aboutOpen={route.view === 'about'} />
       <main className="main">{content}</main>
-      {about && <About index={index} onClose={() => setAbout(false)} />}
     </div>
   );
 }

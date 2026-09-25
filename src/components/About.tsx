@@ -1,20 +1,17 @@
-import { useEffect } from 'react';
 import { arNum } from '../roots';
 import type { IndexFile } from '../types';
 
-export default function About({ index, onClose }: { index: IndexFile | null; onClose: () => void }) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [onClose]);
+/** The About page (#/about): the idea, how to read the forest, the sources and their licences. */
+export default function About({ index }: { index: IndexFile | null }) {
   const c = index?.meta.counts;
   return (
-    <div className="modal-bg" onClick={onClose}>
-      <div className="modal" role="dialog" aria-modal="true" aria-labelledby="about-title" onClick={(e) => e.stopPropagation()}>
-        <button className="iconbtn close" aria-label="إغلاق" onClick={onClose}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
-        </button>
+    <div className="page">
+      <article className="doc" aria-labelledby="about-title">
+        <nav className="crumbs" aria-label="مسار التصفح">
+          <a href="#/">الغابة</a>
+          <span className="sep">›</span>
+          <span>حول التطبيق</span>
+        </nav>
         <h2 id="about-title">غابة الجذور</h2>
         <p>
           خريطة تفاعلية لجذور أفعال القرآن الكريم. كلّ شجرة في الغابة تمثّل <b>جذرًا ثنائيًا</b>، وتتفرّع منها الجذور
@@ -86,7 +83,10 @@ export default function About({ index, onClose }: { index: IndexFile | null; onC
           <li>إسناد الجذور إلى نواة ثنائية اجتهاد يُقصد به الاستقراء والمقارنة لا الجزم، والحكم في ذلك لأهل اللغة.</li>
           <li>الشيفرة المصدرية مفتوحة على GitHub، والبيانات تُبنى آليًا من المصادر أعلاه بواسطة <code>scripts/build_data.py</code>.</li>
         </ul>
-      </div>
+        <p className="note" style={{ marginTop: 18 }}>
+          <a href="#/">→ العودة إلى الغابة</a>
+        </p>
+      </article>
     </div>
   );
 }

@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 
 export type Route =
   | { view: 'forest'; letter?: string }
-  | { view: 'tree'; bi: string; root?: string; verb?: string };
+  | { view: 'tree'; bi: string; root?: string; verb?: string }
+  | { view: 'about' };
 
 export function parseHash(hash: string): Route {
   const parts = hash.replace(/^#\/?/, '').split('/').filter(Boolean).map((p) => {
@@ -16,6 +17,7 @@ export function parseHash(hash: string): Route {
     return { view: 'tree', bi: parts[1], root: parts[2], verb: parts[3] };
   }
   if (parts[0] === 'letter' && parts[1]) return { view: 'forest', letter: parts[1] };
+  if (parts[0] === 'about') return { view: 'about' };
   return { view: 'forest' };
 }
 
